@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGL: Canvas Context</title>
+    <style>
+        canvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="1200" height="600"></canvas>
+    <!-- durch not_javascript wird verhindert, dass das script bei Aufruf der html ausgeführt wird-->
+    <script id="vertex-data" type="not-javascript">
+        //Diese Variable ist notwendig um die Kommunikation zwischen GPU und CPU zu ermöglichen
+        attribute vec4 vertex_points; 
+
+        void main() {
+            gl_Position = vertex_points;
+        }
+    </script>
+    <script id="fragment-data" type="not-javascript">
+        precision mediump float;
+
+        void main() {
+            gl_FragColor = vec4(1, 0, 0, 1.0);
+        }
+    </script>
+</body>
+<!--Das folgende Script steht ausserhalb des bodys, was gegen die eigentliche Konvention geht. Jeder Browsser unterstütz dies aber und führt diese scripte ohne Probleme aus.-->
+<script type="text/javascript"> 
+    /*========== Create a WebGL Context ==========*/
+    const canvas = document.querySelector("#canvas");
+    const gl = canvas.getContext('webgl');
+    if (!gl) {
+        console.log('WebGL unavailable');
+    } else {
+        console.log('WebGL is good to go');
+    }
+    console.log(gl.drawingBufferWidth);
+    console.log(gl.drawingBufferHeight);
+    console.log(gl);
+    /*========== Define and Store the Geometry ==========*/
+
+    // Define the points in the scene
+    //Koordinaten der Ecken des Rechtecks, nach dem Schema x-Wert, y-Wert
+    //In diesem Koordinatensystem von OpenGl liegt 0,0 im Zentrum des Fensters
+    const coordinates = [
+        // Die Punkte werden von OpenGL mit Dreiecken verbunden
+    0,   0.8,  // Punkt in der Mitte oben (Dach)
+    -0.7, 0.7,  // Punkt links oben
+     0.7, 0.7,  // Punkt rechts oben
+    -0.7, 0,    // Punkt links unten
+     0.7, 0     // Punkt rechts unten
+    ];        
+
+    // Ein Buffer ist in diesem Falls ein Speicherbereich auf der Grafikkarte, in dem Daten gespeichert werden können
+    // Create an empty buffer object to store the vertex points
+    const pointsBuffer = gl.createBuffer();
+
+    // Connect the empty buffer object to the GL context
+     gl.bindBuffer(gl.ARRAY_BUFFER, pointsBuffer);
+        
+    // Load the vertices into the GL's connected buffer
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(coordinates), gl.STATIC_DRAW);
+    
+    /*========== Shaders ==========*/
+    // Shader sind die Programme, die auf der GPU laufen und die Grafik berechnen
+    // Create a variable to store the data for our vertex shader
+    const vsSource = document.querySelector("#vertex-data").text;
+    
+    // Create a varialble to store the data from our fragment shader
+    const fsSource = document.querySelector("#fragment-data").text;
+    
+    // Compile the shaders into little programs
+    // Ein Vertexshader bestimmt, wie jeder Punkt (Vertex) im 3D-Raum auf dem Bildschirm dargestellt wird
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader, vsSource);
+    gl.compileShader(vertexShader);
+
+    // Ein Fragmentshader bestimmt, wie die Farbe jedes Pixels auf dem Bildschirm berechnet wird
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragmentShader, fsSource);
+    gl.compileShader(fragmentShader);
+
+    // Aufgabe a) Überprüfen ob die Shader korrekt kompiliert wurden
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+      console.error(gl.getShaderInfoLog(vertexShader));
+    }
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+      console.error(gl.getShaderInfoLog(fragmentShader));
+    }
+
+    // Create a GL program to connect the shaders to the GL context
+    const program = gl.createProgram();
+    
+    // Attach the shaders to the GL context through the program
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    
+    // Create shader executables to run on the GPU
+    gl.linkProgram(program);
+
+    // Define the active program defining what the GPU will draw
+    gl.useProgram(program);
+
+    /*===================== Connect the attribute with the vertex shader ===================*/
+        
+    // Locate the attribute from the vertex shader source in the program
+    // Hier holen wir uns die vertex_points Variable um mit deem Speicherraum der CPU kommunizieren zu können
+    // Der Browser wird vond er CPU ausgeführt, die Darstellung der Inhalte wird von der GPU berechnet. 
+    // Beide haben separate Adresseräume und diese müssen miteinander kombineirt werden könnne.
+    const pointsAttributeLocation = gl.getAttribLocation(program, "vertex_points"); 
+    // Connect the attribute to the points data currently in the buffer object
+    gl.vertexAttribPointer(pointsAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+    // Send the points data to the GPU
+    gl.enableVertexAttribArray(pointsAttributeLocation);
+        
+    /*==================== Drawing ======================== */
+
+    // Clear the canvas
+    gl.clearColor(0.2, 0.1, 0.5, 0.4);
+
+    // Clear the GL context's color buffer for a fresh paint
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    // Draw the points on the screen
+    const mode = gl.TRIANGLE_STRIP; // TRIANGLE_STRIP verbindet immer die letzten beiden Punkte des Dreiecks mit dem nächsten, TRIANGLE_FAN verbindet immer den ersten Punkt mit zwei weiteren Punkten, also 1-2-3, 1-3-4, 1-4-5, ... 
+    const first = 0;
+    const count = 5;
+    gl.drawArrays(mode, first, count);
+
+</script>
+</html>
