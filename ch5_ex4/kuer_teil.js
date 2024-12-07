@@ -3,83 +3,52 @@
 main();
 
 function main() {
-    // create context
+    //----Create context----
     const canvas = document.querySelector("#c");
     const gl = new THREE.WebGLRenderer({
         canvas,
         antialias: true
     });
     
+    //----Loaders----
+    const objectLoader = new THREE.OBJLoader();
+    const textureLoader = new THREE.TextureLoader();
 
 
-    // create camera
+    //----Create camera----
     const angleOfView = 55;
     const aspectRatio = canvas.clientWidth / canvas.clientHeight;
     const nearPlane = 0.1;
-    const farPlane = 100;
+    const farPlane = 1000;
     const camera = new THREE.PerspectiveCamera(
         angleOfView,
         aspectRatio,
         nearPlane,
         farPlane
     );
-    camera.position.set(0, 8, 30);
+    camera.position.set(0, 20, 80); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
 
-    // create the scene
+    //----Create scene----
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0.3, 0.5, 0.8);
-    const fog = new THREE.Fog("grey", 1,90);
-    scene.fog = fog;
+    scene.background = new THREE.Color(0.3, 0.5, 0.8);   //0.3, 0.5, 0.8         0x000000
+    const tripod = new THREE.AxesHelper(50);
+    scene.add(tripod);
+    //const fog = new THREE.Fog("grey", 1,200);
+    //scene.fog = fog;
 
-    // GEOMETRY
-    // create the cube
-    const cubeSize = 4;
-    const cubeGeometry = new THREE.BoxGeometry(
-        cubeSize,
-        cubeSize,
-        cubeSize
-    );  
-
-    // Create the Sphere
-    const sphereRadius = 3;
-    const sphereWidthSegments = 32;
-    const sphereHeightSegments = 16;
-    const sphereGeometry = new THREE.SphereGeometry(
-        sphereRadius,
-        sphereWidthSegments,
-        sphereHeightSegments
-    );
-
-    // Create the upright plane
-    const planeWidth = 256;
-    const planeHeight =  128;
+    //----Create plane----
+    const planeWidth = 0.1; //256
+    const planeHeight =  0.1;  //128
     const planeGeometry = new THREE.PlaneGeometry(
         planeWidth,
         planeHeight
     );
     
-
-    // MATERIALS
-    const textureLoader = new THREE.TextureLoader();
-
-    const cubeMaterial = new THREE.MeshPhongMaterial({
-        color: 'purple',
-    });
-
-    const sphereNormalMap = textureLoader.load('textures/sphere_normal.png');
-    sphereNormalMap.wrapS = THREE.RepeatWrapping;
-    sphereNormalMap.wrapT = THREE.RepeatWrapping;
-    const sphereMaterial = new THREE.MeshStandardMaterial({
-        color: 'tan',
-        normalMap: sphereNormalMap
-    });
-
-    
     const planeTextureMap = textureLoader.load('textures/stone_texture4293.jpg');
     planeTextureMap.wrapS = THREE.RepeatWrapping;
     planeTextureMap.wrapT = THREE.RepeatWrapping;
     planeTextureMap.repeat.set(16, 16);
-    
+
     //planeTextureMap.magFilter = THREE.NearestFilter;
     planeTextureMap.minFilter = THREE.NearestFilter;
     planeTextureMap.anisotropy = gl.getMaxAnisotropy();
@@ -95,23 +64,12 @@ function main() {
         normalMap: planeNorm 
     });
 
-    // MESHES
-    //Cube
-    /*const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-    cube.position.set(cubeSize + 1, cubeSize + 1, 0);
-    scene.add(cube);
-    //Sphere
-    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    sphere.position.set(-sphereRadius - 1, sphereRadius + 2, 0);
-    scene.add(sphere);*/
-
-    //Create plane for shadows
-    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    const plane = new THREE.Mesh(planeGeometry); //, planeMaterial
     plane.rotation.x = Math.PI / 2;
     plane.receiveShadow = true;
     scene.add(plane);
 
-    //LIGHTS
+    //----Lights-----
     const color = 0xffffff;
     const intensity = .7;
     const light = new THREE.DirectionalLight(color, intensity);
@@ -151,16 +109,20 @@ function main() {
     var trackballControls = initTrackballControls(camera, gl);
     var clock = new THREE.Clock();
 
-    // Aufgabe c)
+    //----Textures----
+    const curtainTexture = textureLoader.load('textures/curtain/leather_red_03_coll1_4k.png');
+    curtainTexture.wrapS = THREE.RepeatWrapping;
+    curtainTexture.wrapT = THREE.RepeatWrapping;
+
     const stageTexture = textureLoader.load('textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
     stageTexture.wrapS = THREE.RepeatWrapping;
     stageTexture.wrapT = THREE.RepeatWrapping;
-    stageTexture.repeat.set(5, 5)
+    stageTexture.repeat.set(10, 10)
 
     const stageNormalMap = textureLoader.load('textures/wood_cabinet/wood_planks_normal.png');
-    sphereNormalMap.wrapS = THREE.RepeatWrapping;
-    sphereNormalMap.wrapT = THREE.RepeatWrapping;
-    sphereNormalMap.repeat.set(5, 5)
+    stageNormalMap.wrapS = THREE.RepeatWrapping;
+    stageNormalMap.wrapT = THREE.RepeatWrapping;
+    stageNormalMap.repeat.set(10, 10)
     
     const stageRimTexture = textureLoader.load('textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
     stageRimTexture.wrapS = THREE.RepeatWrapping;
@@ -170,14 +132,126 @@ function main() {
     celloTexture.wrapS = THREE.RepeatWrapping;
     celloTexture.wrapT = THREE.RepeatWrapping;
 
-    const pianoTexture = textureLoader.load('textures/piano/main_Albedo+Paint.png');
+    const celloNormalMap = textureLoader.load('textures/cello/celloNormalMap.png');
+    celloNormalMap.wrapS = THREE.RepeatWrapping;
+    celloNormalMap.wrapT = THREE.RepeatWrapping;
+
+    const pianoTexture = textureLoader.load('textures/piano/new/main_Albedo.png');
     pianoTexture.wrapS = THREE.RepeatWrapping;
     pianoTexture.wrapT = THREE.RepeatWrapping;
 
-    var loader = new THREE.OBJLoader();
+    const pianoNormalMap = textureLoader.load('textures/piano/new/main_Normal.png');
+    pianoNormalMap.wrapS = THREE.RepeatWrapping;
+    pianoNormalMap.wrapT = THREE.RepeatWrapping;
 
-    //----Bühnenobjekt----
-    loader.load('objects/buehneNachBlender.obj',
+    const violineTexture = textureLoader.load('textures/violine/ViolinHomeWork_TD_Checker_Diffuse.png');
+    violineTexture.wrapS = THREE.RepeatWrapping;
+    violineTexture.wrapT = THREE.RepeatWrapping;
+
+    const violineNormalMap = textureLoader.load('textures/violine/ViolinHomeWork_TD_Checker_Normal.png');
+    violineNormalMap.wrapS = THREE.RepeatWrapping;
+    violineNormalMap.wrapT = THREE.RepeatWrapping;
+
+    //----Objects in the Scene----
+    //----Backgroundsphere----
+    textureLoader.load('textures/starmap_16k.jpg', function(texture) {
+        // Erstelle die Geometrie und das Material für die Kugel
+        const geometry = new THREE.SphereGeometry(500, 60, 40); // Radius 500, Unterteilungen
+        const material = new THREE.MeshBasicMaterial({
+            map: texture,
+            side: THREE.BackSide  // Textur soll nach innen zeigen
+        });
+        
+        const sphere = new THREE.Mesh(geometry, material);
+        
+        // Setze die Kugel als Hintergrund
+        scene.add(sphere);
+    });
+
+    //----Curtain animation----
+    function animateCurtain(geometry) {
+        const vertices = geometry.attributes.position.array;
+        const gravity = new THREE.Vector3(0, -0.05, 0);
+        const wind = new THREE.Vector3(0.1, 0, 0); // Wind-Effekt
+    
+        function applyPhysics() {
+            for (let i = 0; i < vertices.length; i += 3) {
+                // Beispiel: Nur die Y-Achse beeinflussen (Schwerkraft)
+                vertices[i + 1] += gravity.y;
+    
+                // Beispiel: Wind auf die X-Achse anwenden
+                vertices[i] += Math.sin(Date.now() * 0.001) * wind.x;
+            }
+            geometry.attributes.position.needsUpdate = true;
+        }
+    
+        function animate() {
+            requestAnimationFrame(animate);
+            applyPhysics();
+            renderer.render(scene, camera);
+        }
+    
+        animate();
+    }
+    //----Curtain left----
+    objectLoader.load('objects/curtain/curtain_closed.obj',
+        function(mesh) {
+                var material = new THREE.MeshPhongMaterial({map:curtainTexture});
+        
+                mesh.traverse(function(child) {
+                    if (child.isMesh) {
+                        child.material = material;
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+
+                mesh.position.set(2.5, 0, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                mesh.rotation.set(0, 0, 0);
+                mesh.scale.set(0.3, 0.3, 0.3);
+        
+            scene.add(mesh);
+            
+        },
+        function ( xhr ) {
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log(error);
+            console.log( 'An error happened' );
+        }
+    );
+
+    //----Curtain right----
+    objectLoader.load('objects/curtain/curtain_closed.obj',
+        function(mesh) {
+                var material = new THREE.MeshPhongMaterial({map:curtainTexture});
+        
+                mesh.traverse(function(child) {
+                    if (child.isMesh) {
+                        child.material = material;
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+
+                mesh.position.set(31, 0, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                mesh.rotation.set(0, 0, 0);
+                mesh.scale.set(0.3, 0.3, 0.3);
+        
+            scene.add(mesh);
+        },
+        function ( xhr ) {
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log(error);
+            console.log( 'An error happened' );
+        }
+    );
+
+    //----Stage----
+    objectLoader.load('objects/BuehneFullCircleNachBlender.obj',
         function(mesh) {
                 var material = new THREE.MeshPhongMaterial({map:stageTexture, normalMap: stageNormalMap});
         
@@ -189,7 +263,7 @@ function main() {
                     }
                 });
 
-                mesh.position.set(-15, 0, 0);
+                mesh.position.set(-18.7, -2.5, 0);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
                 mesh.rotation.set(-Math.PI / 2, 0, 0);
                 mesh.scale.set(500, 500, 250);
         
@@ -204,8 +278,8 @@ function main() {
         }
     );
 
-    //----Bühnenumrandung----
-    loader.load('objects/stageRim38_5.obj',
+    //----Stagerim----
+    objectLoader.load('objects/stageRimFullCircle38_5.obj',
         function(mesh) {
                 var material = new THREE.MeshPhongMaterial({map:stageRimTexture});
         
@@ -217,7 +291,7 @@ function main() {
                     }
                 });
 
-                mesh.position.set(-15, 0, 0);
+                mesh.position.set(-18.7, -2.5, 0);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
                 mesh.rotation.set(-Math.PI / 2, 0, 0);
                 mesh.scale.set(500, 500, 250);
         
@@ -233,9 +307,9 @@ function main() {
     );
 
     //----Piano----
-    loader.load('objects/piano/uploads_files_4987684_Piano.obj',
+    objectLoader.load('objects/piano/uploads_files_4987684_Piano.obj',
         function(mesh) {
-                var material = new THREE.MeshPhongMaterial({map:pianoTexture});
+                var material = new THREE.MeshPhongMaterial({map:pianoTexture, normalMap: pianoNormalMap});
         
                 mesh.traverse(function(child) {
                     if (child.isMesh) {
@@ -245,7 +319,7 @@ function main() {
                     }
                 });
 
-                mesh.position.set(-7, 2.5, 8); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                mesh.position.set(-10.7, 2.5, -8); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
                 mesh.rotation.set(0, -100, 0);
                 mesh.scale.set(0.038, 0.038, 0.038);
         
@@ -261,7 +335,7 @@ function main() {
     );
 
     //----Cello----
-    loader.load('objects/cello/10372_Cello_v01_l3.obj',
+    objectLoader.load('objects/cello/10372_Cello_v01_l3.obj',
         function(mesh) {
                 var material = new THREE.MeshPhongMaterial({map:celloTexture});
         
@@ -273,7 +347,7 @@ function main() {
                     }
                 });
 
-                mesh.position.set(5, 2.5, 5); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                mesh.position.set(1.3, 2.5, -10); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
                 mesh.rotation.set(350, 0, 0); //300 = 90°
                 mesh.scale.set(0.01, 0.01, 0.01);
         
@@ -288,24 +362,45 @@ function main() {
         }
     );
 
+    //----Violine----
+    objectLoader.load('objects/violine/V2.obj',
+        function(mesh) {
+                var material = new THREE.MeshPhongMaterial({map:violineTexture, normalMap: violineNormalMap});
+        
+                mesh.traverse(function(child) {
+                    if (child.isMesh) {
+                        child.material = material;
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+
+                mesh.position.set(9.3, 2.5, -8); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                mesh.rotation.set(0, -2.356, 0.175); //300 = 90°
+                mesh.scale.set(0.01, 0.01, 0.01);
+        
+            scene.add(mesh);
+        },
+        function ( xhr ) {
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log(error);
+            console.log( 'An error happened' );
+        }
+    );
+
+    //----Gui controls----
     var controls = new function () {
         this.rotationSpeed = 0.02;
         this.positionZ = 0;
-        /*this.moveCube = function() {
-            if (cube.position.z === 0) {
-                cube.position.z += 10;
-            } else {
-                cube.position.z = 0;
-            }
-        };*/
     };
 
     var gui = new dat.GUI();
     gui.add(controls, 'rotationSpeed', 0, 0.5);
     gui.add(controls, 'positionZ', 0, 100);
-    //gui.add(controls, 'moveCube').name('Move Cube');
 
-    // DRAW
+    //----Draw----
     function draw(time){
         time *= 0.001;
 
@@ -342,7 +437,7 @@ function main() {
     requestAnimationFrame(draw);
 }
 
-// UPDATE RESIZE
+//----Update resize----
 function resizeGLToDisplaySize(gl) {
     const canvas = gl.domElement;
     const width = canvas.clientWidth;
