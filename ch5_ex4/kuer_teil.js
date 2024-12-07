@@ -33,8 +33,6 @@ function main() {
     scene.background = new THREE.Color(0.3, 0.5, 0.8);   //0.3, 0.5, 0.8         0x000000
     const tripod = new THREE.AxesHelper(50);
     scene.add(tripod);
-    //const fog = new THREE.Fog("grey", 1,200);
-    //scene.fog = fog;
 
     //----Create plane----
     const planeWidth = 0.1; //256
@@ -109,49 +107,6 @@ function main() {
     var trackballControls = initTrackballControls(camera, gl);
     var clock = new THREE.Clock();
 
-    //----Textures----
-    const curtainTexture = textureLoader.load('textures/curtain/leather_red_03_coll1_4k.png');
-    curtainTexture.wrapS = THREE.RepeatWrapping;
-    curtainTexture.wrapT = THREE.RepeatWrapping;
-
-    const stageTexture = textureLoader.load('textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
-    stageTexture.wrapS = THREE.RepeatWrapping;
-    stageTexture.wrapT = THREE.RepeatWrapping;
-    stageTexture.repeat.set(10, 10)
-
-    const stageNormalMap = textureLoader.load('textures/wood_cabinet/wood_planks_normal.png');
-    stageNormalMap.wrapS = THREE.RepeatWrapping;
-    stageNormalMap.wrapT = THREE.RepeatWrapping;
-    stageNormalMap.repeat.set(10, 10)
-    
-    const stageRimTexture = textureLoader.load('textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
-    stageRimTexture.wrapS = THREE.RepeatWrapping;
-    stageRimTexture.wrapT = THREE.RepeatWrapping;
-
-    const celloTexture = textureLoader.load('textures/cello/10372_Cello_v01.jpg');
-    celloTexture.wrapS = THREE.RepeatWrapping;
-    celloTexture.wrapT = THREE.RepeatWrapping;
-
-    const celloNormalMap = textureLoader.load('textures/cello/celloNormalMap.png');
-    celloNormalMap.wrapS = THREE.RepeatWrapping;
-    celloNormalMap.wrapT = THREE.RepeatWrapping;
-
-    const pianoTexture = textureLoader.load('textures/piano/new/main_Albedo.png');
-    pianoTexture.wrapS = THREE.RepeatWrapping;
-    pianoTexture.wrapT = THREE.RepeatWrapping;
-
-    const pianoNormalMap = textureLoader.load('textures/piano/new/main_Normal.png');
-    pianoNormalMap.wrapS = THREE.RepeatWrapping;
-    pianoNormalMap.wrapT = THREE.RepeatWrapping;
-
-    const violineTexture = textureLoader.load('textures/violine/ViolinHomeWork_TD_Checker_Diffuse.png');
-    violineTexture.wrapS = THREE.RepeatWrapping;
-    violineTexture.wrapT = THREE.RepeatWrapping;
-
-    const violineNormalMap = textureLoader.load('textures/violine/ViolinHomeWork_TD_Checker_Normal.png');
-    violineNormalMap.wrapS = THREE.RepeatWrapping;
-    violineNormalMap.wrapT = THREE.RepeatWrapping;
-
     //----Objects in the Scene----
     //----Backgroundsphere----
     textureLoader.load('textures/starmap_16k.jpg', function(texture) {
@@ -168,6 +123,72 @@ function main() {
         scene.add(sphere);
     });
 
+    //----Theaterroom----
+    const cubeGeometry = new THREE.BoxGeometry(60, 30, 30);  
+
+    const theaterRoomTexture = textureLoader.load('textures/red_brick/red_brick_diff_4k.jpg');
+    theaterRoomTexture.wrapS = THREE.RepeatWrapping;
+    theaterRoomTexture.wrapT = THREE.RepeatWrapping;
+    theaterRoomTexture.repeat.set(2, 2)
+
+    const theaterRoomNormalMap = textureLoader.load('textures/red_brick/red_brick_disp_4k.jpg');
+    theaterRoomNormalMap.wrapS = THREE.RepeatWrapping;
+    theaterRoomNormalMap.wrapT = THREE.RepeatWrapping;
+    theaterRoomNormalMap.repeat.set(2, 2)
+
+    const cubeMaterial = new THREE.MeshPhongMaterial({
+        //color: 'purple',
+        map: theaterRoomTexture,
+        normalMap: theaterRoomNormalMap,
+        side: THREE.BackSide
+    });
+
+    const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+    cube.position.set(0, 15, 60);
+    scene.add(cube);
+
+    //----Theaterfog----
+    const fog = new THREE.Fog("grey", 0, 200);
+    scene.fog = fog;
+    scene.fog = null;
+
+    //----Theaterchairs----
+    const theaterchairsTexture = textureLoader.load('textures/theaterchairs/velvet_diff.jpg');
+    theaterchairsTexture.wrapS = THREE.RepeatWrapping;
+    theaterchairsTexture.wrapT = THREE.RepeatWrapping;
+
+    objectLoader.load('objects/theaterchairs/armchair_cinema_6.obj',
+        function(mesh) {
+                var material = new THREE.MeshPhongMaterial({map:theaterchairsTexture});
+        
+                mesh.traverse(function(child) {
+                    if (child.isMesh) {
+                        child.material = material;
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+
+                mesh.position.set(11, 0, 65);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                mesh.rotation.set(0, 3.14159, 0);
+                mesh.scale.set(10, 10, 10);
+        
+            scene.add(mesh);
+        },
+        function ( xhr ) {
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log(error);
+            console.log( 'An error happened' );
+        }
+    );
+
+    //----Curtains----
+    const curtainTexture = textureLoader.load('textures/curtain/leather_red_03_coll1_4k.png');
+    curtainTexture.wrapS = THREE.RepeatWrapping;
+    curtainTexture.wrapT = THREE.RepeatWrapping;
+
     //----Curtain left----
     objectLoader.load('objects/curtain/curtain_closed.obj',
         function(mesh) {
@@ -181,7 +202,7 @@ function main() {
                     }
                 });
 
-                mesh.position.set(2.5, 0, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                mesh.position.set(3, 0, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
                 mesh.rotation.set(0, 0, 0);
                 mesh.scale.set(0.3, 0.3, 0.3);
         
@@ -225,6 +246,16 @@ function main() {
     );
 
     //----Stage----
+    const stageTexture = textureLoader.load('textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
+    stageTexture.wrapS = THREE.RepeatWrapping;
+    stageTexture.wrapT = THREE.RepeatWrapping;
+    stageTexture.repeat.set(10, 10)
+
+    const stageNormalMap = textureLoader.load('textures/wood_cabinet/wood_planks_normal.png');
+    stageNormalMap.wrapS = THREE.RepeatWrapping;
+    stageNormalMap.wrapT = THREE.RepeatWrapping;
+    stageNormalMap.repeat.set(10, 10)
+
     objectLoader.load('objects/BuehneFullCircleNachBlender.obj',
         function(mesh) {
                 var material = new THREE.MeshPhongMaterial({map:stageTexture, normalMap: stageNormalMap});
@@ -253,6 +284,10 @@ function main() {
     );
 
     //----Stagerim----
+    const stageRimTexture = textureLoader.load('textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
+    stageRimTexture.wrapS = THREE.RepeatWrapping;
+    stageRimTexture.wrapT = THREE.RepeatWrapping;
+
     objectLoader.load('objects/stageRimFullCircle38_5.obj',
         function(mesh) {
                 var material = new THREE.MeshPhongMaterial({map:stageRimTexture});
@@ -281,6 +316,14 @@ function main() {
     );
 
     //----Piano----
+    const pianoTexture = textureLoader.load('textures/piano/new/main_Albedo.png');
+    pianoTexture.wrapS = THREE.RepeatWrapping;
+    pianoTexture.wrapT = THREE.RepeatWrapping;
+
+    const pianoNormalMap = textureLoader.load('textures/piano/new/main_Normal.png');
+    pianoNormalMap.wrapS = THREE.RepeatWrapping;
+    pianoNormalMap.wrapT = THREE.RepeatWrapping;
+
     objectLoader.load('objects/piano/uploads_files_4987684_Piano.obj',
         function(mesh) {
                 var material = new THREE.MeshPhongMaterial({map:pianoTexture, normalMap: pianoNormalMap});
@@ -309,6 +352,14 @@ function main() {
     );
 
     //----Cello----
+    const celloTexture = textureLoader.load('textures/cello/10372_Cello_v01.jpg');
+    celloTexture.wrapS = THREE.RepeatWrapping;
+    celloTexture.wrapT = THREE.RepeatWrapping;
+
+    const celloNormalMap = textureLoader.load('textures/cello/celloNormalMap.png');
+    celloNormalMap.wrapS = THREE.RepeatWrapping;
+    celloNormalMap.wrapT = THREE.RepeatWrapping;
+
     objectLoader.load('objects/cello/10372_Cello_v01_l3.obj',
         function(mesh) {
                 var material = new THREE.MeshPhongMaterial({map:celloTexture});
@@ -337,6 +388,14 @@ function main() {
     );
 
     //----Violine----
+    const violineTexture = textureLoader.load('textures/violine/ViolinHomeWork_TD_Checker_Diffuse.png');
+    violineTexture.wrapS = THREE.RepeatWrapping;
+    violineTexture.wrapT = THREE.RepeatWrapping;
+
+    const violineNormalMap = textureLoader.load('textures/violine/ViolinHomeWork_TD_Checker_Normal.png');
+    violineNormalMap.wrapS = THREE.RepeatWrapping;
+    violineNormalMap.wrapT = THREE.RepeatWrapping;
+
     objectLoader.load('objects/violine/V2.obj',
         function(mesh) {
                 var material = new THREE.MeshPhongMaterial({map:violineTexture, normalMap: violineNormalMap});
