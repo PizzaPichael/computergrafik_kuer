@@ -168,31 +168,6 @@ function main() {
         scene.add(sphere);
     });
 
-    //----Curtain animation----
-    function animateCurtain(geometry) {
-        const vertices = geometry.attributes.position.array;
-        const gravity = new THREE.Vector3(0, -0.05, 0);
-        const wind = new THREE.Vector3(0.1, 0, 0); // Wind-Effekt
-    
-        function applyPhysics() {
-            for (let i = 0; i < vertices.length; i += 3) {
-                // Beispiel: Nur die Y-Achse beeinflussen (Schwerkraft)
-                vertices[i + 1] += gravity.y;
-    
-                // Beispiel: Wind auf die X-Achse anwenden
-                vertices[i] += Math.sin(Date.now() * 0.001) * wind.x;
-            }
-            geometry.attributes.position.needsUpdate = true;
-        }
-    
-        function animate() {
-            requestAnimationFrame(animate);
-            applyPhysics();
-            renderer.render(scene, camera);
-        }
-    
-        animate();
-    }
     //----Curtain left----
     objectLoader.load('objects/curtain/curtain_closed.obj',
         function(mesh) {
@@ -211,7 +186,6 @@ function main() {
                 mesh.scale.set(0.3, 0.3, 0.3);
         
             scene.add(mesh);
-            
         },
         function ( xhr ) {
             console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
