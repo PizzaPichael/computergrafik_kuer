@@ -118,7 +118,8 @@ function main() {
         });
         
         const sphere = new THREE.Mesh(geometry, material);
-        
+        sphere.userData.selectable = false;
+
         // Setze die Kugel als Hintergrund
         scene.add(sphere);
     });
@@ -145,6 +146,7 @@ function main() {
 
     const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
     cube.position.set(0, 15, 60);
+    cube.userData.selectable = false;
     scene.add(cube);
 
     //----Theaterfog----
@@ -166,6 +168,7 @@ function main() {
                         child.material = material;
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        child.userData.selectable = false;
                     }
                 });
 
@@ -199,6 +202,7 @@ function main() {
                         child.material = material;
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        child.userData.selectable = false;
                     }
                 });
 
@@ -227,12 +231,46 @@ function main() {
                         child.material = material;
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        child.userData.selectable = false;
                     }
                 });
 
                 mesh.position.set(31, 0, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
                 mesh.rotation.set(0, 0, 0);
                 mesh.scale.set(0.3, 0.3, 0.3);
+        
+            scene.add(mesh);
+        },
+        function ( xhr ) {
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log(error);
+            console.log( 'An error happened' );
+        }
+    );
+
+    //----Curtain rope----
+    const curtainRopeTexture = textureLoader.load('textures/holz_hellbraun.jpg');
+    curtainRopeTexture.wrapS = THREE.RepeatWrapping;
+    curtainRopeTexture.wrapT = THREE.RepeatWrapping;
+
+    objectLoader.load('objects/rope/elongated_rope.obj',
+        function(mesh) {
+                var material = new THREE.MeshPhongMaterial({map:curtainRopeTexture});
+        
+                mesh.traverse(function(child) {
+                    if (child.isMesh) {
+                        child.material = material;
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                        child.userData.selectable = true;
+                    }
+                });
+
+                mesh.position.set(15, 10, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                mesh.rotation.set(0, 0, 0);
+                mesh.scale.set(0.2, 0.2, 0.2);
         
             scene.add(mesh);
         },
@@ -265,6 +303,7 @@ function main() {
                         child.material = material;
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        child.userData.selectable = false;
                     }
                 });
 
@@ -297,6 +336,7 @@ function main() {
                         child.material = material;
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        child.userData.selectable = false;
                     }
                 });
 
@@ -333,6 +373,7 @@ function main() {
                         child.material = material;
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        child.userData.selectable = true;
                     }
                 });
 
@@ -369,6 +410,7 @@ function main() {
                         child.material = material;
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        child.userData.selectable = true;
                     }
                 });
 
@@ -405,6 +447,7 @@ function main() {
                         child.material = material;
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        child.userData.selectable = true;
                     }
                 });
 
@@ -423,6 +466,81 @@ function main() {
         }
     );
 
+    //----Raycaster----
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    /*window.addEventListener('mousemove', (event) => {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    });*/
+
+    /*window.addEventListener('click', function (event) {
+        // Raycasting-Logik nur beim Klick
+        const mouse = new THREE.Vector2(
+            (event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1
+        );
+    
+        raycaster.setFromCamera(mouse, camera);
+    
+        const intersects = raycaster.intersectObjects(scene.children, true);
+        if (intersects.length > 0) {
+            // Markiere nur das Objekt, auf das geklickt wurde
+            intersects[0].object.material.color.set(0xff0000);
+        }
+    });*/
+
+    let selectedObject = null;
+    let outlineMesh = null;
+
+    window.addEventListener('click', function (event) {
+        // Mausposition berechnen
+        const mouse = new THREE.Vector2(
+            (event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1
+        );
+
+        raycaster.setFromCamera(mouse, camera);
+
+        const intersects = raycaster.intersectObjects(scene.children, true);
+
+        // Entferne die alte Umrandung, wenn ein neues Objekt ausgewählt wird
+        if (selectedObject !== null) {
+            if (outlineMesh) {
+                scene.remove(outlineMesh);
+                outlineMesh = null;
+            }
+        }
+
+        if (intersects.length > 0) {
+            const clickedObject = intersects[0].object;
+
+            // Überprüfen, ob das Objekt auswählbar ist
+            if (clickedObject.userData.selectable !== false) {
+                if (selectedObject === clickedObject) {
+                    // Abwählen, wenn bereits ausgewählt
+                    selectedObject.material.color.set(0xffffff); // Ursprüngliche Farbe
+                    selectedObject = null;
+                } else {
+                    // Vorheriges Objekt zurücksetzen, falls eines ausgewählt ist
+                    if (selectedObject) {
+                        selectedObject.material.color.set(0xffffff); // Ursprüngliche Farbe
+                    }
+                    // Neues Objekt auswählen
+                    clickedObject.material.color.set(0xff0000);
+                    selectedObject = clickedObject;
+                }
+            }
+        } else {
+            // Nichts getroffen, vorheriges Objekt zurücksetzen
+            if (selectedObject) {
+                selectedObject.material.color.set(0xffffff);
+                selectedObject = null;
+            }
+        }
+    });
+
+
     //----Gui controls----
     var controls = new function () {
         this.rotationSpeed = 0.02;
@@ -440,12 +558,16 @@ function main() {
         trackballControls.update(clock.getDelta());
         stats.update();
 
-
         if (resizeGLToDisplaySize(gl)) {
             const canvas = gl.domElement;
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
             camera.updateProjectionMatrix();
         }
+
+        //Raycaster für Mausinteraktion
+        raycaster.setFromCamera(mouse, camera);
+
+        
 
         //Aufgb b)
         // rotate the cube around its axes
