@@ -26,7 +26,8 @@ function main() {
         nearPlane,
         farPlane
     );
-    camera.position.set(0, 20, 80); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+    camera.position.set(0, 18, 80); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+    camera.rotation.x = THREE.Math.degToRad(-10); // Set the pitch (in degrees)
 
     //----Create scene----
     const scene = new THREE.Scene();
@@ -102,9 +103,18 @@ function main() {
     /*var gui = new dat.GUI();
     gui.add(controls, 'rotationSpeed', 0, 0.5);*/
 
-    // add the stats
+    //----Add the stats----
     var stats = initStats();
-    var trackballControls = initTrackballControls(camera, gl);
+
+    //----Enable camera control by mouse----
+    var trackballControls
+    function enableCameraMovement() {
+        trackballControls = initTrackballControls(camera, gl);
+    }
+
+    //enableCameraMovement();
+
+    //----Enable clock for later use of getElapsedTime() or similar----
     var clock = new THREE.Clock();
 
     //----Objects in the Scene----
@@ -137,14 +147,14 @@ function main() {
     theaterRoomNormalMap.wrapT = THREE.RepeatWrapping;
     theaterRoomNormalMap.repeat.set(2, 2)
 
-    const cubeMaterial = new THREE.MeshPhongMaterial({
+    const roomMaterial = new THREE.MeshPhongMaterial({
         //color: 'purple',
         map: theaterRoomTexture,
         normalMap: theaterRoomNormalMap,
         side: THREE.BackSide
     });
 
-    const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+    const cube = new THREE.Mesh(cubeGeometry, roomMaterial);
     cube.position.set(0, 15, 60);
     cube.userData.selectable = false;
     scene.add(cube);
@@ -154,6 +164,17 @@ function main() {
     scene.fog = fog;
     scene.fog = null;
 
+    //----Define all loader objects----
+    let theaterChairs;
+    let curtainLeft;
+    let curtainRight;
+    let curtainRope;
+    /*let stage;
+    let stageRim;
+    let piano;
+    let cello;
+    let violine;*/
+
     //----Theaterchairs----
     const theaterchairsTexture = textureLoader.load('textures/theaterchairs/velvet_diff.jpg');
     theaterchairsTexture.wrapS = THREE.RepeatWrapping;
@@ -161,20 +182,22 @@ function main() {
 
     objectLoader.load('objects/theaterchairs/armchair_cinema_6.obj',
         function(mesh) {
-                var material = new THREE.MeshPhongMaterial({map:theaterchairsTexture});
-        
-                mesh.traverse(function(child) {
-                    if (child.isMesh) {
-                        child.material = material;
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        child.userData.selectable = false;
-                    }
-                });
+            var material = new THREE.MeshPhongMaterial({map:theaterchairsTexture});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = false;
+                }
+            });
 
-                mesh.position.set(11, 0, 65);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-                mesh.rotation.set(0, 3.14159, 0);
-                mesh.scale.set(10, 10, 10);
+            mesh.position.set(11, 0, 65);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(0, 3.14159, 0);
+            mesh.scale.set(10, 10, 10);
+
+            theaterChairs = mesh;
         
             scene.add(mesh);
         },
@@ -195,21 +218,23 @@ function main() {
     //----Curtain left----
     objectLoader.load('objects/curtain/curtain_closed.obj',
         function(mesh) {
-                var material = new THREE.MeshPhongMaterial({map:curtainTexture});
-        
-                mesh.traverse(function(child) {
-                    if (child.isMesh) {
-                        child.material = material;
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        child.userData.selectable = false;
-                    }
-                });
+            var material = new THREE.MeshPhongMaterial({map:curtainTexture});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = false;
+                }
+            });
 
-                mesh.position.set(3, 0, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-                mesh.rotation.set(0, 0, 0);
-                mesh.scale.set(0.3, 0.3, 0.3);
-        
+            mesh.position.set(3, 0, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(0, 0, 0);
+            mesh.scale.set(0.3, 0.3, 0.3);
+
+            curtainLeft = mesh;
+    
             scene.add(mesh);
         },
         function ( xhr ) {
@@ -224,20 +249,22 @@ function main() {
     //----Curtain right----
     objectLoader.load('objects/curtain/curtain_closed.obj',
         function(mesh) {
-                var material = new THREE.MeshPhongMaterial({map:curtainTexture});
-        
-                mesh.traverse(function(child) {
-                    if (child.isMesh) {
-                        child.material = material;
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        child.userData.selectable = false;
-                    }
-                });
+            var material = new THREE.MeshPhongMaterial({map:curtainTexture});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = false;
+                }
+            });
 
-                mesh.position.set(31, 0, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-                mesh.rotation.set(0, 0, 0);
-                mesh.scale.set(0.3, 0.3, 0.3);
+            mesh.position.set(31, 0, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(0, 0, 0);
+            mesh.scale.set(0.3, 0.3, 0.3);
+
+            curtainRight = mesh;
         
             scene.add(mesh);
         },
@@ -257,20 +284,22 @@ function main() {
 
     objectLoader.load('objects/rope/elongated_rope.obj',
         function(mesh) {
-                var material = new THREE.MeshPhongMaterial({map:curtainRopeTexture});
-        
-                mesh.traverse(function(child) {
-                    if (child.isMesh) {
-                        child.material = material;
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        child.userData.selectable = true;
-                    }
-                });
+            var material = new THREE.MeshPhongMaterial({map:curtainRopeTexture});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = true;
+                }
+            });
 
-                mesh.position.set(15, 10, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-                mesh.rotation.set(0, 0, 0);
-                mesh.scale.set(0.2, 0.2, 0.2);
+            mesh.position.set(15, 10, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(0, 0, 0);
+            mesh.scale.set(0.2, 0.2, 0.2);
+
+            curtainRope = mesh;
         
             scene.add(mesh);
         },
@@ -283,6 +312,7 @@ function main() {
         }
     );
 
+    /*
     //----Stage----
     const stageTexture = textureLoader.load('textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
     stageTexture.wrapS = THREE.RepeatWrapping;
@@ -296,20 +326,22 @@ function main() {
 
     objectLoader.load('objects/BuehneFullCircleNachBlender.obj',
         function(mesh) {
-                var material = new THREE.MeshPhongMaterial({map:stageTexture, normalMap: stageNormalMap});
-        
-                mesh.traverse(function(child) {
-                    if (child.isMesh) {
-                        child.material = material;
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        child.userData.selectable = false;
-                    }
-                });
+            var material = new THREE.MeshPhongMaterial({map:stageTexture, normalMap: stageNormalMap});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = false;
+                }
+            });
 
-                mesh.position.set(-18.7, -2.5, 0);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-                mesh.rotation.set(-Math.PI / 2, 0, 0);
-                mesh.scale.set(500, 500, 250);
+            mesh.position.set(-18.7, -2.5, 0);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(-Math.PI / 2, 0, 0);
+            mesh.scale.set(500, 500, 250);
+
+            stage = mesh;
         
             scene.add(mesh);
         },
@@ -329,20 +361,22 @@ function main() {
 
     objectLoader.load('objects/stageRimFullCircle38_5.obj',
         function(mesh) {
-                var material = new THREE.MeshPhongMaterial({map:stageRimTexture});
-        
-                mesh.traverse(function(child) {
-                    if (child.isMesh) {
-                        child.material = material;
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        child.userData.selectable = false;
-                    }
-                });
+            var material = new THREE.MeshPhongMaterial({map:stageRimTexture});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = false;
+                }
+            });
 
-                mesh.position.set(-18.7, -2.5, 0);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-                mesh.rotation.set(-Math.PI / 2, 0, 0);
-                mesh.scale.set(500, 500, 250);
+            mesh.position.set(-18.7, -2.5, 0);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(-Math.PI / 2, 0, 0);
+            mesh.scale.set(500, 500, 250);
+
+            stageRim = mesh;
         
             scene.add(mesh);
         },
@@ -366,20 +400,22 @@ function main() {
 
     objectLoader.load('objects/piano/uploads_files_4987684_Piano.obj',
         function(mesh) {
-                var material = new THREE.MeshPhongMaterial({map:pianoTexture, normalMap: pianoNormalMap});
-        
-                mesh.traverse(function(child) {
-                    if (child.isMesh) {
-                        child.material = material;
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        child.userData.selectable = true;
-                    }
-                });
+            var material = new THREE.MeshPhongMaterial({map:pianoTexture, normalMap: pianoNormalMap});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = true;
+                }
+            });
 
-                mesh.position.set(-10.7, 2.5, -8); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-                mesh.rotation.set(0, -100, 0);
-                mesh.scale.set(0.038, 0.038, 0.038);
+            mesh.position.set(-10.7, 2.5, -8); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(0, -100, 0);
+            mesh.scale.set(0.038, 0.038, 0.038);
+
+            piano = mesh;
         
             scene.add(mesh);
         },
@@ -403,20 +439,22 @@ function main() {
 
     objectLoader.load('objects/cello/10372_Cello_v01_l3.obj',
         function(mesh) {
-                var material = new THREE.MeshPhongMaterial({map:celloTexture});
-        
-                mesh.traverse(function(child) {
-                    if (child.isMesh) {
-                        child.material = material;
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        child.userData.selectable = true;
-                    }
-                });
+            var material = new THREE.MeshPhongMaterial({map:celloTexture});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = true;
+                }
+            });
 
-                mesh.position.set(1.3, 2.5, -10); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-                mesh.rotation.set(350, 0, 0); //300 = 90°
-                mesh.scale.set(0.01, 0.01, 0.01);
+            mesh.position.set(1.3, 2.5, -10); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(350, 0, 0); //300 = 90°
+            mesh.scale.set(0.01, 0.01, 0.01);
+
+            cello = mesh;
         
             scene.add(mesh);
         },
@@ -465,6 +503,7 @@ function main() {
             console.log( 'An error happened' );
         }
     );
+    */
 
     //----Raycaster zum Auswählen von Objekten----
     const raycaster = new THREE.Raycaster();
@@ -535,7 +574,12 @@ function main() {
     function draw(time){
         time *= 0.001;
 
-        trackballControls.update(clock.getDelta());
+        //setTimeout(enableCameraMovement, 20000); // Enable camera movement after 5 seconds
+        
+        if(trackballControls) {
+            trackballControls.update(clock.getDelta());
+        }
+        
         stats.update();
 
         if (resizeGLToDisplaySize(gl)) {
