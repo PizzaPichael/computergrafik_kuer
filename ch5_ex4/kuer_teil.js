@@ -466,29 +466,9 @@ function main() {
         }
     );
 
-    //----Raycaster----
+    //----Raycaster zum Auswählen von Objekten----
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
-    /*window.addEventListener('mousemove', (event) => {
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    });*/
-
-    /*window.addEventListener('click', function (event) {
-        // Raycasting-Logik nur beim Klick
-        const mouse = new THREE.Vector2(
-            (event.clientX / window.innerWidth) * 2 - 1,
-            -(event.clientY / window.innerHeight) * 2 + 1
-        );
-    
-        raycaster.setFromCamera(mouse, camera);
-    
-        const intersects = raycaster.intersectObjects(scene.children, true);
-        if (intersects.length > 0) {
-            // Markiere nur das Objekt, auf das geklickt wurde
-            intersects[0].object.material.color.set(0xff0000);
-        }
-    });*/
 
     let selectedObject = null;
     let outlineMesh = null;
