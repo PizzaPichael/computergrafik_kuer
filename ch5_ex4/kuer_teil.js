@@ -119,7 +119,7 @@ function main() {
 
     //----Objects in the Scene----
     //----Backgroundsphere----
-    textureLoader.load('textures/starmap_16k.jpg', function(texture) {
+    /*textureLoader.load('textures/starmap_16k.jpg', function(texture) {
         // Erstelle die Geometrie und das Material für die Kugel
         const geometry = new THREE.SphereGeometry(500, 60, 40); // Radius 500, Unterteilungen
         const material = new THREE.MeshBasicMaterial({
@@ -132,7 +132,7 @@ function main() {
 
         // Setze die Kugel als Hintergrund
         scene.add(sphere);
-    });
+    });*/
 
     //----Theaterroom----
     const cubeGeometry = new THREE.BoxGeometry(60, 30, 30);  
@@ -512,7 +512,11 @@ function main() {
     let selectedObject = null;
     let outlineMesh = null;
 
-    window.addEventListener('click', function (event) {
+    window.addEventListener('click', onClick);
+    window.addEventListener('mousedown', onMouseDown);
+    
+
+    function onClick(event) {
         // Mausposition berechnen
         const mouse = new THREE.Vector2(
             (event.clientX / window.innerWidth) * 2 - 1,
@@ -557,7 +561,28 @@ function main() {
                 selectedObject = null;
             }
         }
-    });
+    }
+
+    const dragPlaneGeometry = new THREE.PlaneGeometry(10, 10);
+    const dragPlaneMaterial = new THREE.MeshBasicMaterial({ visible: true, color: 0xFFC0CB });
+    const dragPlane = new THREE.Mesh(dragPlaneGeometry, dragPlaneMaterial);
+
+    dragPlane.rotation.x = -Math.PI / 2;
+    dragPlane.position.set(20, 10, 55); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+    scene.add(dragPlane);
+
+    function onMouseDown(event) { 
+
+        const mouse = new THREE.Vector2(
+            (event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1
+        );
+
+        raycaster.setFromCamera(mouse, camera);
+    }
+
+
+
 
 
     //----Gui controls----
@@ -569,6 +594,9 @@ function main() {
     var gui = new dat.GUI();
     gui.add(controls, 'rotationSpeed', 0, 0.5);
     gui.add(controls, 'positionZ', 0, 100);
+
+
+    enableCameraMovement();
 
     //----Draw----
     function draw(time){
