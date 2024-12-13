@@ -90,8 +90,6 @@ function main() {
     // Aufgabe b)
     //Add shadowMap to renderer
     gl.shadowMap.enabled = true;
-    //cube.castShadow = true; //Add shadow to cube
-    //sphere.castShadow = true;   //Add shadow to sphere
 
     // add pointlight for the shadows
     /*var pointLight = new THREE.pointLight(0xffffff);
@@ -518,6 +516,7 @@ function main() {
             mesh.rotation.set(0, -2.356, 0.175); //300 = 90°
             mesh.scale.set(0.01, 0.01, 0.01);
             mesh.name = "violine";
+            violine = mesh;
             scene.add(mesh);
         },
         function ( xhr ) {
@@ -552,7 +551,7 @@ function main() {
     let selectedObject = null;
     let isDragging = false;
 
-    // ---- DragPlane ----
+    // DragPlane
     const dragPlaneGeometry = new THREE.PlaneGeometry(100, 100);
     const dragPlaneMaterial = new THREE.MeshBasicMaterial({ visible: false, color: 0xFFC0CB });
     const dragPlane = new THREE.Mesh(dragPlaneGeometry, dragPlaneMaterial);
@@ -563,7 +562,7 @@ function main() {
     scene.add(dragPlane);
 
 
-    // ---- LimitPlane ----
+    // LimitPlane
     const limitPlaneGeometry = new THREE.PlaneGeometry(100, 100);
     const limitPlaneMaterial = new THREE.MeshBasicMaterial({ visible: false, color: 0xFFC0CB });
     const limitPlane = new THREE.Mesh(limitPlaneGeometry, limitPlaneMaterial);
@@ -573,7 +572,7 @@ function main() {
     limitPlane.name = "limitPlane";
     scene.add(limitPlane);
 
-    // ---- Event Listener ----
+    // Event Listener
     window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
@@ -638,8 +637,9 @@ function main() {
                 previousWorldPointY = wordlPointY;
             }
             if (firstIntersectedObject.name === "dragPlane" && allIntersectedObjects[1].object.name === "cord") {
-                moveCurtains = true;
-                moveCamera = true;
+                console.log("dragPlane contact");
+                activateSpotlights();
+                setTimeout(startMovements(), 2000);
                 //console.log("moveCurtains set by dragPlane contact", moveCurtains);
                 //Hier Event einfügen
             }
@@ -661,7 +661,31 @@ function main() {
         selectedObject = null;
     }
 
-    //----Function to move the curtains----
+    // Activate theaterroom spotlights
+    var spotLight1 = null;
+    var spotLight2 = null;
+
+    function activateSpotlights() { 
+        spotLight1 = new THREE.SpotLight(0xffffff, 1, 100, Math.PI / 6, 0.5, 2);
+        spotLight1.position.set(0, 25, 80); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+        spotLight1.castShadow = true;
+        spotLight1.target = cello;
+        scene.add(spotLight1);
+        enableCameraMovement();
+    }
+
+    
+    //Start movements
+    function startMovements() {
+        moveCurtains = true;  // Starte die Vorhangbewegung sofort
+        
+        // Verzögere die Kamerabewegung um 5 Sekunden
+        setTimeout(function() {
+            moveCamera = true;  // Starte die Kamerabewegung nach 5 Sekunden
+        }, 2000);
+    }
+
+    //Function to move the curtains
     let curtainMovementSpeed = 0.05;
     let curtainRightEndPosition = 62;
     let curtainLeftEndPosition = -28;
@@ -678,7 +702,7 @@ function main() {
         }
     }
 
-    //----Function to move camera after Curtain movement----
+    //Function to move camera after Curtain movement
     let cameraMovementSpeed = 0.08;
     let cameraEndPosition = 45;
     
@@ -690,10 +714,19 @@ function main() {
             camera.position.z -= cameraMovementSpeed;
         } else {
             moveCamera = false;  // Stoppe die Bewegung, wenn das Ziel erreicht ist
+            enableCameraMovement();
+            hideTheaterroom();
         }
     }
 
-    
+    //Hide Theaterroom
+    function hideTheaterroom() {
+        cube.visible = false;
+        theaterChairs.visible = false;
+        curtainLeft.visible = false;
+        curtainRight.visible = false;
+        curtainRope.visible = false;
+    }
 
     //----Gui controls----
     var controls = new function () {
@@ -734,7 +767,7 @@ function main() {
         raycaster.setFromCamera(mouse, camera);
 
         moveCurtainsFunction();
-        setTimeout(moveCameraForward(), 5000);
+        moveCameraForward();
 
         //Aufgb b)
         // rotate the cube around its axes
