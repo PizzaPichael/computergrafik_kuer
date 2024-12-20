@@ -1,0 +1,445 @@
+export function loadObjects(scene, gl) {
+    const textureLoader = new THREE.TextureLoader();
+    const objectLoader = new THREE.OBJLoader();
+
+    //----Create initial plane----
+    const planeWidth = 0.1; //256
+    const planeHeight =  0.1;  //128
+    const planeGeometry = new THREE.PlaneGeometry(
+        planeWidth,
+        planeHeight
+    );
+    
+    const planeTextureMap = textureLoader.load('../textures/stone_texture4293.jpg');
+    planeTextureMap.wrapS = THREE.RepeatWrapping;
+    planeTextureMap.wrapT = THREE.RepeatWrapping;
+    planeTextureMap.repeat.set(16, 16);
+
+    planeTextureMap.minFilter = THREE.NearestFilter;
+    planeTextureMap.anisotropy = gl.getMaxAnisotropy();
+    
+    const planeNorm = textureLoader.load('../textures/pebbles_normal.png');
+    planeNorm.wrapS = THREE.RepeatWrapping;
+    planeNorm.wrapT = THREE.RepeatWrapping;
+    planeNorm.minFilter = THREE.NearestFilter;
+    planeNorm.repeat.set(16, 16);
+    const planeMaterial = new THREE.MeshStandardMaterial({
+        map: planeTextureMap,
+        side: THREE.DoubleSide,
+        normalMap: planeNorm 
+    });
+
+    const plane = new THREE.Mesh(planeGeometry); //, planeMaterial
+    plane.rotation.x = Math.PI / 2;
+    plane.receiveShadow = true;
+    plane.name = "plane";
+    scene.add(plane);
+
+    //----Objects in the Scene----
+    //----Backgroundsphere----
+    textureLoader.load('../textures/starmap_16k.jpg', function(texture) {
+        // Erstelle die Geometrie und das Material für die Kugel
+        const geometry = new THREE.SphereGeometry(500, 60, 40); // Radius 500, Unterteilungen
+        const material = new THREE.MeshBasicMaterial({
+            map: texture,
+            side: THREE.BackSide  // Textur soll nach innen zeigen
+        });
+        
+        const sphere = new THREE.Mesh(geometry, material);
+        sphere.userData.selectable = false;
+        sphere.name = "backgroundSphere";
+
+        // Setze die Kugel als Hintergrund
+        scene.add(sphere);
+    });
+
+    //----Theaterroom----
+    const cubeGeometry = new THREE.BoxGeometry(60, 30, 30);  
+
+    const theaterRoomTexture = textureLoader.load('../textures/red_brick/red_brick_diff_4k.jpg');
+    theaterRoomTexture.wrapS = THREE.RepeatWrapping;
+    theaterRoomTexture.wrapT = THREE.RepeatWrapping;
+    theaterRoomTexture.repeat.set(2, 2)
+
+    const theaterRoomNormalMap = textureLoader.load('../textures/red_brick/red_brick_disp_4k.jpg');
+    theaterRoomNormalMap.wrapS = THREE.RepeatWrapping;
+    theaterRoomNormalMap.wrapT = THREE.RepeatWrapping;
+    theaterRoomNormalMap.repeat.set(2, 2)
+
+    const roomMaterial = new THREE.MeshPhongMaterial({
+        //color: 'purple',
+        map: theaterRoomTexture,
+        normalMap: theaterRoomNormalMap,
+        side: THREE.BackSide
+    });
+
+    const cube = new THREE.Mesh(cubeGeometry, roomMaterial);
+    cube.position.set(0, 15, 60);
+    cube.userData.selectable = false;
+    cube.name = "theaterRoom";
+    scene.add(cube);
+
+    //----Theaterfog----
+    const fog = new THREE.Fog("grey", 0, 200);
+    scene.fog = fog;
+    scene.fog = null;
+
+    //----Define all scene objects----
+    let theaterChairs;
+    let curtainLeft;
+    let curtainRight;
+    let curtainRope;
+    let stage;
+    let stageRim;
+    let piano;
+    let cello;
+    let violine;
+
+    //----Theaterchairs----
+    const theaterchairsTexture = textureLoader.load('../textures/theaterchairs/velvet_diff.jpg');
+    theaterchairsTexture.wrapS = THREE.RepeatWrapping;
+    theaterchairsTexture.wrapT = THREE.RepeatWrapping;
+
+    objectLoader.load('objects/theaterchairs/armchair_cinema_6.obj',
+        function(mesh) {
+            var material = new THREE.MeshPhongMaterial({map:theaterchairsTexture});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = false;
+                }
+            });
+
+            mesh.position.set(11, 0, 65);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(0, 3.14159, 0);
+            mesh.scale.set(10, 10, 10);
+            mesh.name = "chairs";
+            theaterChairs = mesh;
+        
+            scene.add(mesh);
+        },
+        function ( xhr ) {
+            console.log( "chairs " + ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log(error);
+            console.log( 'An error happened' );
+        }
+    );
+
+    //----Curtains----
+    const curtainTexture = textureLoader.load('../textures/curtain/leather_red_03_coll1_4k.png');
+    curtainTexture.wrapS = THREE.RepeatWrapping;
+    curtainTexture.wrapT = THREE.RepeatWrapping;
+
+    //----Curtain left----
+    objectLoader.load('objects/curtain/curtain_closed.obj',
+        function(mesh) {
+            var material = new THREE.MeshPhongMaterial({map:curtainTexture});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = false;
+                }
+            });
+
+            mesh.position.set(3, 0, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(0, 0, 0);
+            mesh.scale.set(0.3, 0.3, 0.3);
+            mesh.name = "curtainLeft";
+            curtainLeft = mesh;
+    
+            scene.add(mesh);
+        },
+        function ( xhr ) {
+            console.log( "curtainLeft " + ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log(error);
+            console.log( 'An error happened' );
+        }
+    );
+
+    //----Curtain right----
+    objectLoader.load('objects/curtain/curtain_closed.obj',
+        function(mesh) {
+            var material = new THREE.MeshPhongMaterial({map:curtainTexture});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = false;
+                }
+            });
+
+            mesh.position.set(31, 0, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(0, 0, 0);
+            mesh.scale.set(0.3, 0.3, 0.3);
+            mesh.name = "curtainRight";
+            curtainRight = mesh;
+        
+            scene.add(mesh);
+        },
+        function ( xhr ) {
+            console.log( "curtainRight " + ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log(error);
+            console.log( 'An error happened' );
+        }
+    );
+
+    //----Curtain rope----
+    const curtainRopeTexture = textureLoader.load('../textures/holz_hellbraun.jpg');
+    curtainRopeTexture.wrapS = THREE.RepeatWrapping;
+    curtainRopeTexture.wrapT = THREE.RepeatWrapping;
+
+    const initCordYPos = 10;
+
+    objectLoader.load('objects/rope/elongated_rope.obj', function (mesh) {
+        var material = new THREE.MeshPhongMaterial({ map: curtainRopeTexture });
+    
+        // Eine neue leere Geometrie für das kombinierte Mesh
+        var combinedGeometry = new THREE.BufferGeometry();
+    
+        // Traverse durch alle Mesh-Kinder und füge ihre Geometrien zusammen
+        mesh.traverse(function (child) {
+            if (child.isMesh) {
+                child.material = material;
+                child.castShadow = true;
+                child.receiveShadow = true;
+                child.userData.selectable = true;
+    
+                // Geometrie des aktuellen Meshes zum combinedGeometry hinzufügen
+                if (combinedGeometry.attributes.position === undefined) {
+                    // Falls die Geometrie leer ist, füge die Geometrie des ersten Meshes hinzu
+                    combinedGeometry = child.geometry.clone();
+                } else {
+                    // Wenn bereits Geometrie vorhanden ist, kombiniere sie
+                    combinedGeometry.merge(child.geometry, child.matrix);
+                }
+            }
+        });
+    
+        // Erstelle ein neues Mesh mit der kombinierten Geometrie
+        var combinedMesh = new THREE.Mesh(combinedGeometry, material);
+        combinedMesh.position.set(15, initCordYPos, 50);  // Position des gesamten Objekts
+        combinedMesh.rotation.set(0, 0, 0);    // Rotation des gesamten Objekts
+        combinedMesh.scale.set(0.2, 0.2, 0.2); // Skalierung des gesamten Objekts
+        combinedMesh.name = "cord";             // Name des Objekts
+        combinedMesh.userData.isCord = true;
+    
+        // Füge das kombinierte Mesh der Szene hinzu
+        scene.add(combinedMesh);
+    
+        // Das ursprüngliche Mesh (der Parent) wird nicht mehr benötigt
+        curtainRope = combinedMesh;
+    },
+    function (xhr) {
+        console.log("cord " + (xhr.loaded / xhr.total * 100) + '% loaded');
+    },
+    function (error) {
+        console.log(error);
+        console.log('An error happened');
+    });
+
+    //----Stage----
+    const stageTexture = textureLoader.load('../textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
+    stageTexture.wrapS = THREE.RepeatWrapping;
+    stageTexture.wrapT = THREE.RepeatWrapping;
+    stageTexture.repeat.set(10, 10)
+
+    const stageNormalMap = textureLoader.load('../textures/wood_cabinet/wood_planks_normal.png');
+    stageNormalMap.wrapS = THREE.RepeatWrapping;
+    stageNormalMap.wrapT = THREE.RepeatWrapping;
+    stageNormalMap.repeat.set(10, 10)
+
+    objectLoader.load('objects/BuehneFullCircleNachBlender.obj',
+        function(mesh) {
+            var material = new THREE.MeshPhongMaterial({map:stageTexture, normalMap: stageNormalMap});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = false;
+                }
+            });
+
+            mesh.position.set(-18.7, -2.5, 0);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(-Math.PI / 2, 0, 0);
+            mesh.scale.set(500, 500, 250);
+            mesh.name = "stage";
+            stage = mesh;
+        
+            scene.add(mesh);
+        },
+        function ( xhr ) {
+            console.log("stage " + ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log(error);
+            console.log( 'An error happened' );
+        }
+    );
+
+    //----Stagerim----
+    const stageRimTexture = textureLoader.load('../textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
+    stageRimTexture.wrapS = THREE.RepeatWrapping;
+    stageRimTexture.wrapT = THREE.RepeatWrapping;
+
+    objectLoader.load('objects/stageRimFullCircle38_5.obj',
+        function(mesh) {
+            var material = new THREE.MeshPhongMaterial({map:stageRimTexture});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = false;
+                }
+            });
+
+            mesh.position.set(-18.7, -2.5, 0);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(-Math.PI / 2, 0, 0);
+            mesh.scale.set(500, 500, 250);
+            mesh.name = "stageRim";
+            stageRim = mesh;
+            
+            scene.add(mesh);
+        },
+        function ( xhr ) {
+            console.log( "stageRim " + ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log(error);
+            console.log( 'An error happened' );
+        }
+    );
+
+    //----Piano----
+    const pianoTexture = textureLoader.load('../textures/piano/new/main_Albedo.png');
+    pianoTexture.wrapS = THREE.RepeatWrapping;
+    pianoTexture.wrapT = THREE.RepeatWrapping;
+
+    const pianoNormalMap = textureLoader.load('../textures/piano/new/main_Normal.png');
+    pianoNormalMap.wrapS = THREE.RepeatWrapping;
+    pianoNormalMap.wrapT = THREE.RepeatWrapping;
+
+    objectLoader.load('objects/piano/uploads_files_4987684_Piano.obj',
+        function(mesh) {
+            var material = new THREE.MeshPhongMaterial({map:pianoTexture, normalMap: pianoNormalMap});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = true;
+                }
+            });
+
+            mesh.position.set(-10.7, 2.5, -8); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(0, -100, 0);
+            mesh.scale.set(0.038, 0.038, 0.038);
+            mesh.name = "piano";
+            piano = mesh;
+        
+            scene.add(mesh);
+        },
+        function ( xhr ) {
+            console.log( "piano " + ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log(error);
+            console.log( 'An error happened' );
+        }
+    );
+
+    //----Cello----
+    const celloTexture = textureLoader.load('../textures/cello/10372_Cello_v01.jpg');
+    celloTexture.wrapS = THREE.RepeatWrapping;
+    celloTexture.wrapT = THREE.RepeatWrapping;
+
+    const celloNormalMap = textureLoader.load('../textures/cello/celloNormalMap.png');
+    celloNormalMap.wrapS = THREE.RepeatWrapping;
+    celloNormalMap.wrapT = THREE.RepeatWrapping;
+
+    objectLoader.load('objects/cello/10372_Cello_v01_l3.obj',
+        function(mesh) {
+            var material = new THREE.MeshPhongMaterial({map:celloTexture});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = true;
+                }
+            });
+
+            mesh.position.set(1.3, 2.5, -10); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(350, 0, 0); //300 = 90°
+            mesh.scale.set(0.01, 0.01, 0.01);
+            mesh.name = "cello";
+            cello = mesh;
+        
+            scene.add(mesh);
+        },
+        function ( xhr ) {
+            console.log( "cello "+( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log(error);
+            console.log( 'An error happened' );
+        }
+    );
+
+    //----Violine----
+    const violineTexture = textureLoader.load('../textures/violine/ViolinHomeWork_TD_Checker_Diffuse.png');
+    violineTexture.wrapS = THREE.RepeatWrapping;
+    violineTexture.wrapT = THREE.RepeatWrapping;
+
+    const violineNormalMap = textureLoader.load('../textures/violine/ViolinHomeWork_TD_Checker_Normal.png');
+    violineNormalMap.wrapS = THREE.RepeatWrapping;
+    violineNormalMap.wrapT = THREE.RepeatWrapping;
+
+    objectLoader.load('objects/violine/V2.obj',
+        function(mesh) {
+            var material = new THREE.MeshPhongMaterial({map:violineTexture, normalMap: violineNormalMap});
+    
+            mesh.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.userData.selectable = true;
+                }
+            });
+
+            mesh.position.set(9.3, 2.5, -8); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+            mesh.rotation.set(0, -2.356, 0.175); //300 = 90°
+            mesh.scale.set(0.01, 0.01, 0.01);
+            mesh.name = "violine";
+            violine = mesh;
+            scene.add(mesh);
+        },
+        function ( xhr ) {
+            console.log( "violine " + ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log(error);
+            console.log( 'An error happened' );
+        }
+    );
+}
