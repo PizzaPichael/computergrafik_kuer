@@ -1,4 +1,12 @@
-import { enableCameraMovement, getTrackBallControls, updateTrackBallControls, raycaster } from "./interactions";
+import { 
+    enableCameraMovement, 
+    getTrackBallControls, 
+    updateTrackBallControls, 
+    getRaycaster, 
+    getMouse,
+    moveCurtainsFunction,
+    moveCameraForward
+} from "./interactions.js";
 
 export function renderLoop(scene, camera, gl) {
     //----Add the stats----
@@ -20,6 +28,9 @@ export function renderLoop(scene, camera, gl) {
     }
 
     //enableCameraMovement();
+    let raycaster = getRaycaster();
+    let trackballControls = getTrackBallControls();
+    let mouse = getMouse();
 
     //----Draw----
     function draw(time){
@@ -27,7 +38,7 @@ export function renderLoop(scene, camera, gl) {
 
         //setTimeout(enableCameraMovement, 10000); // Enable camera movement after X milliseconds (1s = 1000ms)
         
-        if(getTrackballControls()) {
+        if(trackballControls) {
             updateTrackBallControls(clock.getDelta());
         }
         

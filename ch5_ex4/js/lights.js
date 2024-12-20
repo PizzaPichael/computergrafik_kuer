@@ -1,9 +1,11 @@
+import { getPlane } from "./loaders.js";
+
 export function loadLights(scene) {   
     //----Lights-----
     const color = 0xffffff;
     const intensity = .7;
     const light = new THREE.DirectionalLight(color, intensity);
-    light.target = plane;
+    light.target = getPlane();
     light.position.set(0, 30, 30);
     light.name = "directionalLight";
     scene.add(light);
