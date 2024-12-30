@@ -1,7 +1,7 @@
-const textureLoader = new THREE.TextureLoader();
-const objectLoader = new THREE.OBJLoader();
+var textureLoader;
+var objectLoader;
 
-let outPlane
+let outPlane;
 function createInitPlane(scene, gl) {
     //----Create initial plane----
     const planeWidth = 0.1; //256
@@ -36,17 +36,62 @@ function createInitPlane(scene, gl) {
     plane.name = "plane";
     outPlane = plane;
     scene.add(plane);
+
+    return new Promise((resolve) => { 
+        // ... (after plane creation is complete) ...
+        console.log("...delivering promise...")
+        resolve(); 
+    });
 }
 
 export function getPlane(){
     return outPlane;
 }
 
-let outBackgroundSphere
-function createBackgroudnSphere(scene) {
+let outBackgroundSphere;
+async function createBackgroundSphere(scene) {
+    console.log("Spehre function: starting");
+
+    // Umwandlung von textureLoader.load in ein Promise
+    const texture = await new Promise((resolve, reject) => {
+        textureLoader.load(
+            './textures/starmap_16k.jpg',
+            (loadedTexture) => {
+                console.log("Sphere: loading texture");
+                resolve(loadedTexture);
+            },
+            undefined,
+            (error) => {
+                console.error("Error loading texture:", error);
+                reject(error);
+            }
+        );
+    });
+
+    console.log("Sphere: creating geometry");
+
+    const geometry = new THREE.SphereGeometry(500, 60, 40);
+    const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        side: THREE.BackSide,
+    });
+
+    const sphere = new THREE.Mesh(geometry, material);
+    console.log("Sphere: created sphere ", sphere);
+    sphere.userData.selectable = false;
+    sphere.name = "backgroundSphere";
+
+    console.log("Created sphere for background: ", sphere);
+
+    // Setze die Kugel als Hintergrund
+    outBackgroundSphere = sphere;
+    scene.add(sphere);
+
     //----Backgroundsphere----
-    textureLoader.load('./textures/starmap_16k.jpg', function(texture) {
+    /*const texturePromise = textureLoader.load('./textures/starmap_16k.jpg', function(texture) {
+        console.log("Sphere: loading texture");
         // Erstelle die Geometrie und das Material für die Kugel
+        console.log("Sphere: creating geometry");
         const geometry = new THREE.SphereGeometry(500, 60, 40); // Radius 500, Unterteilungen
         const material = new THREE.MeshBasicMaterial({
             map: texture,
@@ -54,21 +99,37 @@ function createBackgroudnSphere(scene) {
         });
         
         const sphere = new THREE.Mesh(geometry, material);
+        console.log("Sphere: created sphere ", sphere);
         sphere.userData.selectable = false;
         sphere.name = "backgroundSphere";
+
+        console.log("Created sphere for background: ", sphere);
 
         // Setze die Kugel als Hintergrund
         outBackgroundSphere = sphere;
         scene.add(sphere);
+
+        return new Promise((resolve) => { 
+            // ... (after plane creation is complete) ...
+            console.log("...delivering texturePromise...")
+            resolve(); 
+        });
     });
+    await texturePromise;
+
+    return new Promise((resolve) => { 
+        // ... (after plane creation is complete) ...
+        console.log("...delivering promise...")
+        resolve(); 
+    });*/
 }
 
 export function getBackgroundSphere(){
     return outBackgroundSphere;
 }
 
-let outTheaterRoom
-function createTheaterRoom(scene) {
+let outTheaterRoom;
+async function createTheaterRoom(scene) {
     //----Theaterroom----
     const cubeGeometry = new THREE.BoxGeometry(60, 30, 30);  
 
@@ -521,12 +582,17 @@ export function getVioline(){
 }
 
 
-export function loadObjects(scene, gl) {
-    
-    //----Create Objects in the Scene----
-    createInitPlane(scene, gl);
+export async function loadObjects(scene, gl) {
+    console.log("Loaders: Loading objects...");
 
-    createBackgroudnSphere(scene);
+    textureLoader = new THREE.TextureLoader();
+    objectLoader = new THREE.OBJLoader();
+    //----Create Objects in the Scene----
+    const planePromise = createInitPlane(scene, gl);
+    await planePromise;
+
+    const spherePromise = createBackgroundSphere(scene);
+    await spherePromise;
 
     createTheaterRoom(scene);
     
@@ -548,4 +614,20 @@ export function loadObjects(scene, gl) {
 
     createVioline(scene);
     
+    console.log("Objects: ");
+    console.log("Plane: ", outPlane);
+    console.log("BackgroundSphere: ", outBackgroundSphere);
+    console.log("TheaterRoom: ", outTheaterRoom);
+    console.log("Fog: ", outFog);
+    console.log("TheaterChairs: ", theaterChairs);
+    console.log("CurtainLeft: ", curtainLeft);
+    console.log("CurtainRight: ", curtainRight);
+    console.log("CurtainRope: ", curtainRope);
+    console.log("Stage: ", stage);
+    console.log("StageRim: ", stageRim);
+    console.log("Piano: ", piano);
+    console.log("Cello: ", cello);
+    console.log("Violine: ", violine);
+    console.log("Objects loaded!");
+
 }

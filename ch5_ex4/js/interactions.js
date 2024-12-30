@@ -1,11 +1,12 @@
 import { getScene, getCamera } from "./app.js";
-import { getCello, getCurtainRope } from "./loaders.js";
+import { getCello, getCurtainRope, getCurtainLeft, getCurtainRight } from "./loaders.js";
 
 // ---- Raycaster und Interaktion ----
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 var scene;
 var camera;
+var gl;
 var cello;
 var cord;
 
@@ -18,20 +19,24 @@ export function getMouse() {
 }
 
 //----Setup function----
-export function setupInteractions(inScene) {
-    scene = getScene();
-    camera = getCamera();
+export async function setupInteractions(inScene, inCamera, inGl) {
+    scene = inScene;
+    camera = inCamera;
+    gl = inGl;
     // Event Listener
     window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
 
-    createDragPlane(inScene);
+    createDragPlane(scene);
 
-    createLimitPlane(inScene);
-
+    createLimitPlane(scene);
+    console.log("Getting cello...")
     cello = getCello();
+    console.log("Got cello: ", cello);
+    console.log("Getting cord...")
     cord = getCurtainRope();
+    console.log("Got cord: ", cord);
 }
 
 let outDragPlane;
@@ -164,9 +169,11 @@ function activateSpotlights() {
     spotLight1 = new THREE.SpotLight(0xffffff, 1, 100, Math.PI / 6, 0.5, 2);
     spotLight1.position.set(0, 25, 80); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
     spotLight1.castShadow = true;
+    console.log("Setting target.")
     spotLight1.target = cello;
+    console.log("Target set: ", spotLight1.target);
     scene.add(spotLight1);
-    enableCameraMovement();
+    enableCameraMovement(gl);
 }
 
 //Start movements
@@ -185,6 +192,8 @@ let curtainRightEndPosition = 62;
 let curtainLeftEndPosition = -28;
 
 export function moveCurtainsFunction() {
+    var curtainLeft = getCurtainLeft();
+    var curtainRight = getCurtainRight();
     if (!moveCurtains) return;
     
     // Berechne die Differenz zwischen der aktuellen und der Zielposition

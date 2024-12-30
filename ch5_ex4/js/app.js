@@ -22,7 +22,6 @@ export function getGL() {
 }
 
 export function getCamera() {
-    console.log("OutCameraLOG ", outCamera);
     return outCamera;
 }
 
@@ -31,7 +30,9 @@ export function getScene() {
 }
 
 
-function main() {
+async function main() {
+    console.log("Starting main function...");
+    console.log("Creating context");
     //----Create context/renderer----
     const canvas = document.querySelector("#c");
     const gl = new THREE.WebGLRenderer({
@@ -42,6 +43,7 @@ function main() {
 
     outCanvas = canvas;
 
+    console.log("Setting up camera");
     //----Create camera----
     const angleOfView = 55;
     const aspectRatio = canvas.clientWidth / canvas.clientHeight;
@@ -59,6 +61,7 @@ function main() {
 
     outCamera = camera;
 
+    console.log("Setting up scene");
     //----Create scene----
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0.3, 0.5, 0.8);   //0.3, 0.5, 0.8         0x000000
@@ -68,20 +71,21 @@ function main() {
 
     outScene = scene;
 
+    console.log("Main: Loading objects");
     // Objekte laden
-    loadObjects(scene, gl);
+    await loadObjects(scene, gl);
 
     // Licht laden
-    loadLights(scene);
+    await loadLights(scene);
 
     // Interaktionen hinzufügen
-    setupInteractions(scene, camera);
+    await setupInteractions(scene, camera, gl);
 
     // Audio hinzufügen
-    setupAudio(camera);
+    await setupAudio(camera);
 
     // GUI hinzufügen
-    setupGui();
+    await setupGui();
 
     // Render-Schleife starten
     renderLoop(scene, camera, gl);
