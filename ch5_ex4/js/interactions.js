@@ -151,8 +151,8 @@ function onMouseMove(event) {
 function onMouseUp(event) {
     if (!isDragging || !selectedObject) return;
 
-    if (lastCordY != cord.initCordYPos) {
-        console.log("Ressetting cord position");
+    if (lastCordY != cordObject.position.y) {
+        console.log("Ressetting cord position to ", cordObject.position.y);
         cordObject.position.y = initCordYPos;
     }
 

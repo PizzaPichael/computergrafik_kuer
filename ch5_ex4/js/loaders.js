@@ -294,7 +294,7 @@ function createCurtainRight(scene) {
                     console.log('An error happened');
                 }
             );
-            
+
         } catch (error) {
             console.error("Error in createTheaterRoom:", error);
             reject(error);
@@ -312,59 +312,67 @@ export function getCurtainRight() {
 }
 
 function createCurtainRope(scene) {
-    //----Curtain rope----
-    const curtainRopeTexture = textureLoader.load('./textures/holz_hellbraun.jpg');
-    curtainRopeTexture.wrapS = THREE.RepeatWrapping;
-    curtainRopeTexture.wrapT = THREE.RepeatWrapping;
+    return new Promise((resolve, reject) => {
+        try {
+            //----Curtain rope----
+            const curtainRopeTexture = textureLoader.load('./textures/holz_hellbraun.jpg');
+            curtainRopeTexture.wrapS = THREE.RepeatWrapping;
+            curtainRopeTexture.wrapT = THREE.RepeatWrapping;
 
-    const initCordYPos = 10;
+            objectLoader.load('objects/rope/elongated_rope.obj', function (mesh) {
+                var material = new THREE.MeshPhongMaterial({ map: curtainRopeTexture });
 
-    objectLoader.load('objects/rope/elongated_rope.obj', function (mesh) {
-        var material = new THREE.MeshPhongMaterial({ map: curtainRopeTexture });
+                // Eine neue leere Geometrie für das kombinierte Mesh
+                var combinedGeometry = new THREE.BufferGeometry();
 
-        // Eine neue leere Geometrie für das kombinierte Mesh
-        var combinedGeometry = new THREE.BufferGeometry();
+                // Traverse durch alle Mesh-Kinder und füge ihre Geometrien zusammen
+                mesh.traverse(function (child) {
+                    if (child.isMesh) {
+                        child.material = material;
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                        child.userData.selectable = true;
 
-        // Traverse durch alle Mesh-Kinder und füge ihre Geometrien zusammen
-        mesh.traverse(function (child) {
-            if (child.isMesh) {
-                child.material = material;
-                child.castShadow = true;
-                child.receiveShadow = true;
-                child.userData.selectable = true;
+                        // Geometrie des aktuellen Meshes zum combinedGeometry hinzufügen
+                        if (combinedGeometry.attributes.position === undefined) {
+                            // Falls die Geometrie leer ist, füge die Geometrie des ersten Meshes hinzu
+                            combinedGeometry = child.geometry.clone();
+                        } else {
+                            // Wenn bereits Geometrie vorhanden ist, kombiniere sie
+                            combinedGeometry.merge(child.geometry, child.matrix);
+                        }
+                    }
+                });
 
-                // Geometrie des aktuellen Meshes zum combinedGeometry hinzufügen
-                if (combinedGeometry.attributes.position === undefined) {
-                    // Falls die Geometrie leer ist, füge die Geometrie des ersten Meshes hinzu
-                    combinedGeometry = child.geometry.clone();
-                } else {
-                    // Wenn bereits Geometrie vorhanden ist, kombiniere sie
-                    combinedGeometry.merge(child.geometry, child.matrix);
-                }
-            }
-        });
+                // Erstelle ein neues Mesh mit der kombinierten Geometrie
+                var combinedMesh = new THREE.Mesh(combinedGeometry, material);
+                combinedMesh.position.set(15, 10, 50);  // Position des gesamten Objekts
+                combinedMesh.rotation.set(0, 0, 0);    // Rotation des gesamten Objekts
+                combinedMesh.scale.set(0.2, 0.2, 0.2); // Skalierung des gesamten Objekts
+                combinedMesh.name = "cord";             // Name des Objekts
+                combinedMesh.userData.isCord = true;
 
-        // Erstelle ein neues Mesh mit der kombinierten Geometrie
-        var combinedMesh = new THREE.Mesh(combinedGeometry, material);
-        combinedMesh.position.set(15, initCordYPos, 50);  // Position des gesamten Objekts
-        combinedMesh.rotation.set(0, 0, 0);    // Rotation des gesamten Objekts
-        combinedMesh.scale.set(0.2, 0.2, 0.2); // Skalierung des gesamten Objekts
-        combinedMesh.name = "cord";             // Name des Objekts
-        combinedMesh.userData.isCord = true;
+                // Füge das kombinierte Mesh der Szene hinzu
+                scene.add(combinedMesh);
 
-        // Füge das kombinierte Mesh der Szene hinzu
-        scene.add(combinedMesh);
+                // Das ursprüngliche Mesh (der Parent) wird nicht mehr benötigt
+                curtainRope = combinedMesh;
 
-        // Das ursprüngliche Mesh (der Parent) wird nicht mehr benötigt
-        curtainRope = combinedMesh;
-    },
-        function (xhr) {
-            console.log("cord " + (xhr.loaded / xhr.total * 100) + '% loaded');
-        },
-        function (error) {
-            console.log(error);
-            console.log('An error happened');
-        });
+                // Auflösung des Promises
+                resolve();
+            },
+                function (xhr) {
+                    console.log("cord " + (xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.log(error);
+                    console.log('An error happened');
+                });
+        } catch (error) {
+            console.error("Error in createTheaterRoom:", error);
+            reject(error);
+        }
+    });
 }
 
 export function getCurtainRope() {
