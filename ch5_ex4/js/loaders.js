@@ -5,7 +5,7 @@ let outPlane;
 function createInitPlane(scene, gl) {
     //----Create initial plane----
     const planeWidth = 0.1; //256
-    const planeHeight =  0.1;  //128
+    const planeHeight = 0.1;  //128
     const planeGeometry = new THREE.PlaneGeometry(
         planeWidth,
         planeHeight
@@ -37,14 +37,14 @@ function createInitPlane(scene, gl) {
     outPlane = plane;
     scene.add(plane);
 
-    return new Promise((resolve) => { 
+    return new Promise((resolve) => {
         // ... (after plane creation is complete) ...
         console.log("...delivering promise...")
-        resolve(); 
+        resolve();
     });
 }
 
-export function getPlane(){
+export function getPlane() {
     return outPlane;
 }
 
@@ -86,84 +86,57 @@ async function createBackgroundSphere(scene) {
     // Setze die Kugel als Hintergrund
     outBackgroundSphere = sphere;
     scene.add(sphere);
-
-    //----Backgroundsphere----
-    /*const texturePromise = textureLoader.load('./textures/starmap_16k.jpg', function(texture) {
-        console.log("Sphere: loading texture");
-        // Erstelle die Geometrie und das Material für die Kugel
-        console.log("Sphere: creating geometry");
-        const geometry = new THREE.SphereGeometry(500, 60, 40); // Radius 500, Unterteilungen
-        const material = new THREE.MeshBasicMaterial({
-            map: texture,
-            side: THREE.BackSide  // Textur soll nach innen zeigen
-        });
-        
-        const sphere = new THREE.Mesh(geometry, material);
-        console.log("Sphere: created sphere ", sphere);
-        sphere.userData.selectable = false;
-        sphere.name = "backgroundSphere";
-
-        console.log("Created sphere for background: ", sphere);
-
-        // Setze die Kugel als Hintergrund
-        outBackgroundSphere = sphere;
-        scene.add(sphere);
-
-        return new Promise((resolve) => { 
-            // ... (after plane creation is complete) ...
-            console.log("...delivering texturePromise...")
-            resolve(); 
-        });
-    });
-    await texturePromise;
-
-    return new Promise((resolve) => { 
-        // ... (after plane creation is complete) ...
-        console.log("...delivering promise...")
-        resolve(); 
-    });*/
 }
 
-export function getBackgroundSphere(){
+export function getBackgroundSphere() {
     return outBackgroundSphere;
 }
 
 let outTheaterRoom;
 async function createTheaterRoom(scene) {
-    //----Theaterroom----
-    const cubeGeometry = new THREE.BoxGeometry(60, 30, 30);  
+    return new Promise((resolve, reject) => {
+        try {
+            //----Theaterroom----
+            const cubeGeometry = new THREE.BoxGeometry(60, 30, 30);
 
-    const theaterRoomTexture = textureLoader.load('./textures/red_brick/red_brick_diff_4k.jpg');
-    theaterRoomTexture.wrapS = THREE.RepeatWrapping;
-    theaterRoomTexture.wrapT = THREE.RepeatWrapping;
-    theaterRoomTexture.repeat.set(2, 2);
+            const theaterRoomTexture = textureLoader.load('./textures/red_brick/red_brick_diff_4k.jpg');
+            theaterRoomTexture.wrapS = THREE.RepeatWrapping;
+            theaterRoomTexture.wrapT = THREE.RepeatWrapping;
+            theaterRoomTexture.repeat.set(2, 2);
 
-    const theaterRoomNormalMap = textureLoader.load('./textures/red_brick/red_brick_disp_4k.jpg');
-    theaterRoomNormalMap.wrapS = THREE.RepeatWrapping;
-    theaterRoomNormalMap.wrapT = THREE.RepeatWrapping;
-    theaterRoomNormalMap.repeat.set(2, 2);
+            const theaterRoomNormalMap = textureLoader.load('./textures/red_brick/red_brick_disp_4k.jpg');
+            theaterRoomNormalMap.wrapS = THREE.RepeatWrapping;
+            theaterRoomNormalMap.wrapT = THREE.RepeatWrapping;
+            theaterRoomNormalMap.repeat.set(2, 2);
 
-    const roomMaterial = new THREE.MeshPhongMaterial({
-        //color: 'purple',
-        map: theaterRoomTexture,
-        normalMap: theaterRoomNormalMap,
-        side: THREE.BackSide
+            const roomMaterial = new THREE.MeshPhongMaterial({
+                //color: 'purple',
+                map: theaterRoomTexture,
+                normalMap: theaterRoomNormalMap,
+                side: THREE.BackSide
+            });
+
+            const cube = new THREE.Mesh(cubeGeometry, roomMaterial);
+            cube.position.set(0, 15, 60);
+            cube.userData.selectable = false;
+            cube.name = "theaterRoom";
+            outTheaterRoom = cube;
+            scene.add(cube);
+            // Auflösung des Promises
+            resolve();
+        } catch (error) {
+            console.error("Error in createTheaterRoom:", error);
+            reject(error);
+        }
     });
-
-    const cube = new THREE.Mesh(cubeGeometry, roomMaterial);
-    cube.position.set(0, 15, 60);
-    cube.userData.selectable = false;
-    cube.name = "theaterRoom";
-    outTheaterRoom = cube;
-    scene.add(cube);
 }
 
-export function getTheaterRoom(){
+export function getTheaterRoom() {
     return outTheaterRoom;
 }
 
 let outFog
-function createFog(scene){
+function createFog(scene) {
     const fog = new THREE.Fog("grey", 0, 200);
     outFog = fog;
     scene.fog = fog;
@@ -182,120 +155,140 @@ let cello;
 let violine;
 
 function createTheaterChairs(scene) {
-    //----Theaterchairs----
-    const theaterchairsTexture = textureLoader.load('./textures/theaterchairs/velvet_diff.jpg');
-    theaterchairsTexture.wrapS = THREE.RepeatWrapping;
-    theaterchairsTexture.wrapT = THREE.RepeatWrapping;
+    return new Promise((resolve, reject) => {
+        try {
+            //----Theaterchairs----
+            const theaterchairsTexture = textureLoader.load('./textures/theaterchairs/velvet_diff.jpg');
+            theaterchairsTexture.wrapS = THREE.RepeatWrapping;
+            theaterchairsTexture.wrapT = THREE.RepeatWrapping;
 
-    objectLoader.load('objects/theaterchairs/armchair_cinema_6.obj',
-        function(mesh) {
-            var material = new THREE.MeshPhongMaterial({map:theaterchairsTexture});
-    
-            mesh.traverse(function(child) {
-                if (child.isMesh) {
-                    child.material = material;
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    child.userData.selectable = false;
+            objectLoader.load('objects/theaterchairs/armchair_cinema_6.obj',
+                function (mesh) {
+                    var material = new THREE.MeshPhongMaterial({ map: theaterchairsTexture });
+
+                    mesh.traverse(function (child) {
+                        if (child.isMesh) {
+                            child.material = material;
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            child.userData.selectable = false;
+                        }
+                    });
+
+                    mesh.position.set(11, 0, 65);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    mesh.rotation.set(0, 3.14159, 0);
+                    mesh.scale.set(10, 10, 10);
+                    mesh.name = "chairs";
+                    theaterChairs = mesh;
+
+                    scene.add(mesh);
+                },
+                function (xhr) {
+                    console.log("chairs " + (xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.log(error);
+                    console.log('An error happened');
                 }
-            });
-
-            mesh.position.set(11, 0, 65);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-            mesh.rotation.set(0, 3.14159, 0);
-            mesh.scale.set(10, 10, 10);
-            mesh.name = "chairs";
-            theaterChairs = mesh;
-        
-            scene.add(mesh);
-        },
-        function ( xhr ) {
-            console.log( "chairs " + ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-        },
-        function ( error ) {
-            console.log(error);
-            console.log( 'An error happened' );
+            );
+            // Auflösung des Promises
+            resolve();
+        } catch (error) {
+            console.error("Error in createTheaterRoom:", error);
+            reject(error);
         }
-    );
+    });
+
 }
 
-export function getTheaterChairs(){
+export function getTheaterChairs() {
     return theaterChairs;
 }
 
 function createCurtains(scene) {
-    //----Curtains----
-    const curtainTexture = textureLoader.load('./textures/curtain/leather_red_03_coll1_4k.png');
-    curtainTexture.wrapS = THREE.RepeatWrapping;
-    curtainTexture.wrapT = THREE.RepeatWrapping;
+    return new Promise((resolve, reject) => {
+        try {
+            //----Curtains----
+            const curtainTexture = textureLoader.load('./textures/curtain/leather_red_03_coll1_4k.png');
+            curtainTexture.wrapS = THREE.RepeatWrapping;
+            curtainTexture.wrapT = THREE.RepeatWrapping;
 
-    //----Curtain left----
-    objectLoader.load('objects/curtain/curtain_closed.obj',
-        function(mesh) {
-            var material = new THREE.MeshPhongMaterial({map:curtainTexture});
+            //----Curtain left----
+            objectLoader.load('objects/curtain/curtain_closed.obj',
+                function (mesh) {
+                    var material = new THREE.MeshPhongMaterial({ map: curtainTexture });
 
-            mesh.traverse(function(child) {
-                if (child.isMesh) {
-                    child.material = material;
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    child.userData.selectable = false;
+                    mesh.traverse(function (child) {
+                        if (child.isMesh) {
+                            child.material = material;
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            child.userData.selectable = false;
+                        }
+                    });
+
+                    mesh.position.set(3, 0, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    mesh.rotation.set(0, 0, 0);
+                    mesh.scale.set(0.3, 0.3, 0.3);
+                    mesh.name = "curtainLeft";
+                    curtainLeft = mesh;
+
+                    scene.add(mesh);
+                },
+                function (xhr) {
+                    console.log("curtainLeft " + (xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.log(error);
+                    console.log('An error happened');
                 }
-            });
+            );
 
-            mesh.position.set(3, 0, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-            mesh.rotation.set(0, 0, 0);
-            mesh.scale.set(0.3, 0.3, 0.3);
-            mesh.name = "curtainLeft";
-            curtainLeft = mesh;
+            //----Curtain right----
+            objectLoader.load('objects/curtain/curtain_closed.obj',
+                function (mesh) {
+                    var material = new THREE.MeshPhongMaterial({ map: curtainTexture });
 
-            scene.add(mesh);
-        },
-        function ( xhr ) {
-            console.log( "curtainLeft " + ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-        },
-        function ( error ) {
-            console.log(error);
-            console.log( 'An error happened' );
-        }
-    );
+                    mesh.traverse(function (child) {
+                        if (child.isMesh) {
+                            child.material = material;
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            child.userData.selectable = false;
+                        }
+                    });
 
-    //----Curtain right----
-    objectLoader.load('objects/curtain/curtain_closed.obj',
-        function(mesh) {
-            var material = new THREE.MeshPhongMaterial({map:curtainTexture});
+                    mesh.position.set(31, 0, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    mesh.rotation.set(0, 0, 0);
+                    mesh.scale.set(0.3, 0.3, 0.3);
+                    mesh.name = "curtainRight";
+                    curtainRight = mesh;
 
-            mesh.traverse(function(child) {
-                if (child.isMesh) {
-                    child.material = material;
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    child.userData.selectable = false;
+                    scene.add(mesh);
+                },
+                function (xhr) {
+                    console.log("curtainRight " + (xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.log(error);
+                    console.log('An error happened');
                 }
-            });
-
-            mesh.position.set(31, 0, 50);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-            mesh.rotation.set(0, 0, 0);
-            mesh.scale.set(0.3, 0.3, 0.3);
-            mesh.name = "curtainRight";
-            curtainRight = mesh;
-        
-            scene.add(mesh);
-        },
-        function ( xhr ) {
-            console.log( "curtainRight " + ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-        },
-        function ( error ) {
-            console.log(error);
-            console.log( 'An error happened' );
+            );
+            // Auflösung des Promises
+            resolve();
+        } catch (error) {
+            console.error("Error in createTheaterRoom:", error);
+            reject(error);
         }
-    );
+    });
+
 }
 
-export function getCurtainLeft(){
+export function getCurtainLeft() {
     return curtainLeft;
 }
 
-export function getCurtainRight(){
+export function getCurtainRight() {
     return curtainRight;
 }
 
@@ -309,10 +302,10 @@ function createCurtainRope(scene) {
 
     objectLoader.load('objects/rope/elongated_rope.obj', function (mesh) {
         var material = new THREE.MeshPhongMaterial({ map: curtainRopeTexture });
-    
+
         // Eine neue leere Geometrie für das kombinierte Mesh
         var combinedGeometry = new THREE.BufferGeometry();
-    
+
         // Traverse durch alle Mesh-Kinder und füge ihre Geometrien zusammen
         mesh.traverse(function (child) {
             if (child.isMesh) {
@@ -320,7 +313,7 @@ function createCurtainRope(scene) {
                 child.castShadow = true;
                 child.receiveShadow = true;
                 child.userData.selectable = true;
-    
+
                 // Geometrie des aktuellen Meshes zum combinedGeometry hinzufügen
                 if (combinedGeometry.attributes.position === undefined) {
                     // Falls die Geometrie leer ist, füge die Geometrie des ersten Meshes hinzu
@@ -331,7 +324,7 @@ function createCurtainRope(scene) {
                 }
             }
         });
-    
+
         // Erstelle ein neues Mesh mit der kombinierten Geometrie
         var combinedMesh = new THREE.Mesh(combinedGeometry, material);
         combinedMesh.position.set(15, initCordYPos, 50);  // Position des gesamten Objekts
@@ -339,23 +332,23 @@ function createCurtainRope(scene) {
         combinedMesh.scale.set(0.2, 0.2, 0.2); // Skalierung des gesamten Objekts
         combinedMesh.name = "cord";             // Name des Objekts
         combinedMesh.userData.isCord = true;
-    
+
         // Füge das kombinierte Mesh der Szene hinzu
         scene.add(combinedMesh);
-    
+
         // Das ursprüngliche Mesh (der Parent) wird nicht mehr benötigt
         curtainRope = combinedMesh;
     },
-    function (xhr) {
-        console.log("cord " + (xhr.loaded / xhr.total * 100) + '% loaded');
-    },
-    function (error) {
-        console.log(error);
-        console.log('An error happened');
-    });
+        function (xhr) {
+            console.log("cord " + (xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function (error) {
+            console.log(error);
+            console.log('An error happened');
+        });
 }
 
-export function getCurtainRope(){
+export function getCurtainRope() {
     return curtainRope;
 }
 
@@ -372,10 +365,10 @@ function createStage(scene) {
     stageNormalMap.repeat.set(10, 10)
 
     objectLoader.load('objects/BuehneFullCircleNachBlender.obj',
-        function(mesh) {
-            var material = new THREE.MeshPhongMaterial({map:stageTexture, normalMap: stageNormalMap});
-    
-            mesh.traverse(function(child) {
+        function (mesh) {
+            var material = new THREE.MeshPhongMaterial({ map: stageTexture, normalMap: stageNormalMap });
+
+            mesh.traverse(function (child) {
                 if (child.isMesh) {
                     child.material = material;
                     child.castShadow = true;
@@ -389,20 +382,20 @@ function createStage(scene) {
             mesh.scale.set(500, 500, 250);
             mesh.name = "stage";
             stage = mesh;
-        
+
             scene.add(mesh);
         },
-        function ( xhr ) {
-            console.log("stage " + ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        function (xhr) {
+            console.log("stage " + (xhr.loaded / xhr.total * 100) + '% loaded');
         },
-        function ( error ) {
+        function (error) {
             console.log(error);
-            console.log( 'An error happened' );
+            console.log('An error happened');
         }
     );
 }
 
-export function getStage(){
+export function getStage() {
     return stage;
 }
 
@@ -413,10 +406,10 @@ function createStageRim(scene, gl) {
     stageRimTexture.wrapT = THREE.RepeatWrapping;
 
     objectLoader.load('objects/stageRimFullCircle38_5.obj',
-        function(mesh) {
-            var material = new THREE.MeshPhongMaterial({map:stageRimTexture});
-    
-            mesh.traverse(function(child) {
+        function (mesh) {
+            var material = new THREE.MeshPhongMaterial({ map: stageRimTexture });
+
+            mesh.traverse(function (child) {
                 if (child.isMesh) {
                     child.material = material;
                     child.castShadow = true;
@@ -430,20 +423,20 @@ function createStageRim(scene, gl) {
             mesh.scale.set(500, 500, 250);
             mesh.name = "stageRim";
             stageRim = mesh;
-            
+
             scene.add(mesh);
         },
-        function ( xhr ) {
-            console.log( "stageRim " + ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        function (xhr) {
+            console.log("stageRim " + (xhr.loaded / xhr.total * 100) + '% loaded');
         },
-        function ( error ) {
+        function (error) {
             console.log(error);
-            console.log( 'An error happened' );
+            console.log('An error happened');
         }
     );
 }
 
-export function getStageRim(){
+export function getStageRim() {
     return stageRim;
 }
 
@@ -458,10 +451,10 @@ function createPiano(scene) {
     pianoNormalMap.wrapT = THREE.RepeatWrapping;
 
     objectLoader.load('objects/piano/uploads_files_4987684_Piano.obj',
-        function(mesh) {
-            var material = new THREE.MeshPhongMaterial({map:pianoTexture, normalMap: pianoNormalMap});
-    
-            mesh.traverse(function(child) {
+        function (mesh) {
+            var material = new THREE.MeshPhongMaterial({ map: pianoTexture, normalMap: pianoNormalMap });
+
+            mesh.traverse(function (child) {
                 if (child.isMesh) {
                     child.material = material;
                     child.castShadow = true;
@@ -475,20 +468,20 @@ function createPiano(scene) {
             mesh.scale.set(0.038, 0.038, 0.038);
             mesh.name = "piano";
             piano = mesh;
-        
+
             scene.add(mesh);
         },
-        function ( xhr ) {
-            console.log( "piano " + ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        function (xhr) {
+            console.log("piano " + (xhr.loaded / xhr.total * 100) + '% loaded');
         },
-        function ( error ) {
+        function (error) {
             console.log(error);
-            console.log( 'An error happened' );
+            console.log('An error happened');
         }
     );
 }
 
-export function getPiano(){
+export function getPiano() {
     return piano;
 }
 
@@ -503,10 +496,10 @@ function createCello(scene) {
     celloNormalMap.wrapT = THREE.RepeatWrapping;
 
     objectLoader.load('objects/cello/10372_Cello_v01_l3.obj',
-        function(mesh) {
-            var material = new THREE.MeshPhongMaterial({map:celloTexture});
-    
-            mesh.traverse(function(child) {
+        function (mesh) {
+            var material = new THREE.MeshPhongMaterial({ map: celloTexture });
+
+            mesh.traverse(function (child) {
                 if (child.isMesh) {
                     child.material = material;
                     child.castShadow = true;
@@ -520,20 +513,20 @@ function createCello(scene) {
             mesh.scale.set(0.01, 0.01, 0.01);
             mesh.name = "cello";
             cello = mesh;
-        
+
             scene.add(mesh);
         },
-        function ( xhr ) {
-            console.log( "cello "+( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        function (xhr) {
+            console.log("cello " + (xhr.loaded / xhr.total * 100) + '% loaded');
         },
-        function ( error ) {
+        function (error) {
             console.log(error);
-            console.log( 'An error happened' );
+            console.log('An error happened');
         }
     );
 }
 
-export function getCello(){
+export function getCello() {
     return cello;
 }
 
@@ -548,10 +541,10 @@ function createVioline(scene) {
     violineNormalMap.wrapT = THREE.RepeatWrapping;
 
     objectLoader.load('objects/violine/V2.obj',
-        function(mesh) {
-            var material = new THREE.MeshPhongMaterial({map:violineTexture, normalMap: violineNormalMap});
-    
-            mesh.traverse(function(child) {
+        function (mesh) {
+            var material = new THREE.MeshPhongMaterial({ map: violineTexture, normalMap: violineNormalMap });
+
+            mesh.traverse(function (child) {
                 if (child.isMesh) {
                     child.material = material;
                     child.castShadow = true;
@@ -567,17 +560,17 @@ function createVioline(scene) {
             violine = mesh;
             scene.add(mesh);
         },
-        function ( xhr ) {
-            console.log( "violine " + ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        function (xhr) {
+            console.log("violine " + (xhr.loaded / xhr.total * 100) + '% loaded');
         },
-        function ( error ) {
+        function (error) {
             console.log(error);
-            console.log( 'An error happened' );
+            console.log('An error happened');
         }
     );
 }
 
-export function getVioline(){
+export function getVioline() {
     return violine;
 }
 
@@ -588,17 +581,15 @@ export async function loadObjects(scene, gl) {
     textureLoader = new THREE.TextureLoader();
     objectLoader = new THREE.OBJLoader();
     //----Create Objects in the Scene----
-    const planePromise = createInitPlane(scene, gl);
-    await planePromise;
+    await createInitPlane(scene, gl);
 
-    const spherePromise = createBackgroundSphere(scene);
-    await spherePromise;
+    await createBackgroundSphere(scene);
 
-    createTheaterRoom(scene);
-    
+    await createTheaterRoom(scene);
+
     createFog(scene);
 
-    createTheaterChairs(scene);
+    await createTheaterChairs(scene);
 
     createCurtains(scene);
 
@@ -613,7 +604,7 @@ export async function loadObjects(scene, gl) {
     createCello(scene);
 
     createVioline(scene);
-    
+
     console.log("Objects: ");
     console.log("Plane: ", outPlane);
     console.log("BackgroundSphere: ", outBackgroundSphere);
