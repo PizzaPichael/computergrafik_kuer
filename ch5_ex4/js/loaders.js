@@ -157,14 +157,14 @@ let violine;
 function createTheaterChairs(scene) {
     return new Promise((resolve, reject) => {
         try {
-            //----Theaterchairs----
             const theaterchairsTexture = textureLoader.load('./textures/theaterchairs/velvet_diff.jpg');
             theaterchairsTexture.wrapS = THREE.RepeatWrapping;
             theaterchairsTexture.wrapT = THREE.RepeatWrapping;
 
-            objectLoader.load('objects/theaterchairs/armchair_cinema_6.obj',
+            objectLoader.load(
+                'objects/theaterchairs/armchair_cinema_6.obj',
                 function (mesh) {
-                    var material = new THREE.MeshPhongMaterial({ map: theaterchairsTexture });
+                    const material = new THREE.MeshPhongMaterial({ map: theaterchairsTexture });
 
                     mesh.traverse(function (child) {
                         if (child.isMesh) {
@@ -175,40 +175,41 @@ function createTheaterChairs(scene) {
                         }
                     });
 
-                    mesh.position.set(11, 0, 65);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    mesh.position.set(11, 0, 65);
                     mesh.rotation.set(0, 3.14159, 0);
                     mesh.scale.set(10, 10, 10);
                     mesh.name = "chairs";
                     theaterChairs = mesh;
 
                     scene.add(mesh);
+
+                    // TheaterChairs wurde erfolgreich erstellt und hinzugefügt
+                    resolve(mesh);
                 },
                 function (xhr) {
                     console.log("chairs " + (xhr.loaded / xhr.total * 100) + '% loaded');
                 },
                 function (error) {
-                    console.log(error);
-                    console.log('An error happened');
+                    console.error('An error happened', error);
+                    reject(error);
                 }
             );
-            // Auflösung des Promises
-            resolve();
         } catch (error) {
             console.error("Error in createTheaterRoom:", error);
             reject(error);
         }
     });
-
 }
+
 
 export function getTheaterChairs() {
     return theaterChairs;
 }
 
-function createCurtains(scene) {
+function createCurtainLeft(scene) {
     return new Promise((resolve, reject) => {
         try {
-            //----Curtains----
+            //----Curtaintexture----
             const curtainTexture = textureLoader.load('./textures/curtain/leather_red_03_coll1_4k.png');
             curtainTexture.wrapS = THREE.RepeatWrapping;
             curtainTexture.wrapT = THREE.RepeatWrapping;
@@ -234,6 +235,7 @@ function createCurtains(scene) {
                     curtainLeft = mesh;
 
                     scene.add(mesh);
+                    resolve(mesh);
                 },
                 function (xhr) {
                     console.log("curtainLeft " + (xhr.loaded / xhr.total * 100) + '% loaded');
@@ -243,6 +245,21 @@ function createCurtains(scene) {
                     console.log('An error happened');
                 }
             );
+        }
+        catch (error) {
+            console.error("Error in createTheaterRoom:", error);
+            reject(error);
+        }
+    });
+}
+
+function createCurtainRight(scene) {
+    return new Promise((resolve, reject) => {
+        try {
+            //----Curtaintexture----
+            const curtainTexture = textureLoader.load('./textures/curtain/leather_red_03_coll1_4k.png');
+            curtainTexture.wrapS = THREE.RepeatWrapping;
+            curtainTexture.wrapT = THREE.RepeatWrapping;
 
             //----Curtain right----
             objectLoader.load('objects/curtain/curtain_closed.obj',
@@ -265,6 +282,9 @@ function createCurtains(scene) {
                     curtainRight = mesh;
 
                     scene.add(mesh);
+
+                    // Auflösung des Promises
+                    resolve();
                 },
                 function (xhr) {
                     console.log("curtainRight " + (xhr.loaded / xhr.total * 100) + '% loaded');
@@ -274,8 +294,7 @@ function createCurtains(scene) {
                     console.log('An error happened');
                 }
             );
-            // Auflösung des Promises
-            resolve();
+            
         } catch (error) {
             console.error("Error in createTheaterRoom:", error);
             reject(error);
@@ -591,19 +610,21 @@ export async function loadObjects(scene, gl) {
 
     await createTheaterChairs(scene);
 
-    createCurtains(scene);
+    await createCurtainLeft(scene);
 
-    createCurtainRope(scene);
+    await createCurtainRight(scene);
 
-    createStage(scene);
+    await createCurtainRope(scene);
 
-    createStageRim(scene);
+    await createStage(scene);
 
-    createPiano(scene);
+    await createStageRim(scene);
 
-    createCello(scene);
+    await createPiano(scene);
 
-    createVioline(scene);
+    await createCello(scene);
+
+    await createVioline(scene);
 
     console.log("Objects: ");
     console.log("Plane: ", outPlane);
