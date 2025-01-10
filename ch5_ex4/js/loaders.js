@@ -304,7 +304,7 @@ function createCurtainRight(scene) {
 }
 
 export function getCurtainLeft() {
-    return curtainLeft;
+    return curtainLeft; 
 }
 
 export function getCurtainRight() {
@@ -510,9 +510,9 @@ function createPiano(scene) {
                         }
                     });
 
-                    mesh.position.set(-10.7, 2.5, -8); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    mesh.position.set(1.3, 2.5, -10); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)  
                     mesh.rotation.set(0, -100, 0);
-                    mesh.scale.set(0.038, 0.038, 0.038);
+                    mesh.scale.set(0.06, 0.06, 0.06);
                     mesh.name = "piano";
                     piano = mesh;
 
@@ -564,9 +564,9 @@ function createCello(scene) {
                         }
                     });
 
-                    mesh.position.set(1.3, 2.5, -10); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    mesh.position.set(-10.7, 2.5, 5); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
                     mesh.rotation.set(350, 0, 0); //300 = 90°
-                    mesh.scale.set(0.01, 0.01, 0.01);
+                    mesh.scale.set(0.015, 0.015, 0.015);
                     mesh.name = "cello";
                     cello = mesh;
 
@@ -618,9 +618,9 @@ function createVioline(scene) {
                         }
                     });
 
-                    mesh.position.set(9.3, 2.5, -8); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    mesh.position.set(10, 2.5, 5); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
                     mesh.rotation.set(0, -2.356, 0.175); //300 = 90°
-                    mesh.scale.set(0.01, 0.01, 0.01);
+                    mesh.scale.set(0.015, 0.015, 0.015);
                     mesh.name = "violine";
                     violine = mesh;
                     scene.add(mesh);
@@ -656,7 +656,7 @@ export async function loadObjects(scene, gl) {
     await createInitPlane(scene, gl);
 
     await createBackgroundSphere(scene);
-
+    
     await createTheaterRoom(scene);
 
     createFog(scene);
@@ -668,7 +668,7 @@ export async function loadObjects(scene, gl) {
     await createCurtainRight(scene);
 
     await createCurtainRope(scene);
-
+    
     await createStage(scene);
 
     await createStageRim(scene);

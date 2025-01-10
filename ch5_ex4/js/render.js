@@ -35,7 +35,7 @@ export function renderLoop(scene, camera, gl) {
     //----Draw----
     function draw(time){
         time *= 0.001;
-
+        //enableCameraMovement();
         //setTimeout(enableCameraMovement, 10000); // Enable camera movement after X milliseconds (1s = 1000ms)
         trackballControls = getTrackBallControls();
         //console.log("TrackballControls: ", trackballControls);

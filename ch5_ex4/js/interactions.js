@@ -10,6 +10,13 @@ var gl;
 var cello;
 var cord;
 var trackballControls;
+var mouseMoveSituation;
+
+let theaterRoom = getTheaterRoom();
+let theaterChairs = getTheaterChairs();
+let curtainLeft = getCurtainLeft();
+let curtainRight = getCurtainRight();
+let curtainRope = getCurtainRope();
 
 export function getRaycaster() {
     return raycaster;
@@ -26,20 +33,24 @@ export async function setupInteractions(inScene, inCamera, inGl, initTrackballCo
     gl = inGl;
     trackballControls = initTrackballControls;
 
-    // Event Listener
+    // Event Listener for dragging the curtainrope
     window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
-
     createDragPlane(scene);
-
     createLimitPlane(scene);
-    console.log("Getting cello...")
     cello = getCello();
-    console.log("Got cello: ", cello);
-    console.log("Getting cord...")
     cord = getCurtainRope();
-    console.log("Got cord: ", cord);
+
+    // Event Listener for moving the isntruments
+    window.addEventListener('click', onMouseClick);
+
+    // Initialising theaterRoom objects
+    theaterRoom = getTheaterRoom();
+    theaterChairs = getTheaterChairs();
+    curtainLeft = getCurtainLeft();
+    curtainRight = getCurtainRight();
+    curtainRope = getCurtainRope();
 }
 
 let outDragPlane;
@@ -94,7 +105,7 @@ function onMouseDown(event) {
     raycaster.setFromCamera(mouse, camera);
 
     const allIntersectedObjects = raycaster.intersectObjects(scene.children, true);
-    console.log("Objekte getroffen:", allIntersectedObjects);
+    console.log("onMouseDown sagt: 'Objekte getroffen:", allIntersectedObjects, "'");
     if (allIntersectedObjects.length > 0) {
         const firstIntersectedObject = allIntersectedObjects[0].object;
         const worldPoint = allIntersectedObjects[0].point;
@@ -104,6 +115,7 @@ function onMouseDown(event) {
             cordObject = firstIntersectedObject;
             selectedObject = firstIntersectedObject;
             isDragging = true;
+            mouseMoveSituation = "cord";
         }
     }
 
@@ -116,42 +128,48 @@ let worldYDifference = null;
 var lastCordY = null;
 
 function onMouseMove(event) {
-    if (!isDragging) {
-        return;
-    }
-
-    const mouse = new THREE.Vector2(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        -(event.clientY / window.innerHeight) * 2 + 1
-    );
-
-    raycaster.setFromCamera(mouse, camera);
-
-    const allIntersectedObjects = raycaster.intersectObjects(scene.children);
-
-    if (allIntersectedObjects.length > 0) {
-        const firstIntersectedObject = allIntersectedObjects[0].object; 
-        const worldPoint = allIntersectedObjects[0].point;
-        if (firstIntersectedObject.userData.isCord) {
-            let wordlPointY = worldPoint.y;
-            worldYDifference = wordlPointY - previousWorldPointY;
-            firstIntersectedObject.position.y += worldYDifference;
-            lastCordY = firstIntersectedObject.position.y;
-            previousWorldPointY = wordlPointY;
+    if(mouseMoveSituation == "cord") {
+        if (!isDragging) {
+            return;
         }
-        if (firstIntersectedObject.name === "dragPlane" && allIntersectedObjects[1].object.name === "cord") {
-            console.log("dragPlane contact");
-            activateSpotlights();
-            setTimeout(startMovements(), 2000);
-            //console.log("moveCurtains set by dragPlane contact", moveCurtains);
-            //Hier Event einfügen
+    
+        const mouse = new THREE.Vector2(
+            (event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1
+        );
+    
+        raycaster.setFromCamera(mouse, camera);
+    
+        const allIntersectedObjects = raycaster.intersectObjects(scene.children);
+    
+        if (allIntersectedObjects.length > 0) {
+            const firstIntersectedObject = allIntersectedObjects[0].object; 
+            const worldPoint = allIntersectedObjects[0].point;
+            if (firstIntersectedObject.userData.isCord) {
+                let wordlPointY = worldPoint.y;
+                worldYDifference = wordlPointY - previousWorldPointY;
+                firstIntersectedObject.position.y += worldYDifference;
+                lastCordY = firstIntersectedObject.position.y;
+                previousWorldPointY = wordlPointY;
+            }
+            if (firstIntersectedObject.name === "dragPlane" && allIntersectedObjects[1].object.name === "cord") {
+                console.log("dragPlane contact");
+                activateSpotlights();
+                setTimeout(startMovements(), 2000);
+                //console.log("moveCurtains set by dragPlane contact", moveCurtains);
+                //Hier Event einfügen
+            }
         }
+    } else if(mouseMoveSituation == "instrument") {
+        //TODO implement instrument movement
     }
+    
     
 }
 
 // Funktion zum Stoppen der Kordelbewegung
 function onMouseUp(event) {
+    //TODO fix the cord reset
     if (!isDragging || !selectedObject) return;
 
     if (lastCordY != cordObject.position.y) {
@@ -192,9 +210,10 @@ function startMovements() {
 let curtainMovementSpeed = 0.05;
 let curtainRightEndPosition = 62;
 let curtainLeftEndPosition = -28;
+var curtainsInEndPosition = false;
 
-export function moveCurtainsFunction() {
-    var curtainLeft = getCurtainLeft();
+export async function moveCurtainsFunction() {
+    var curtainLeft = await getCurtainLeft();
     var curtainRight = getCurtainRight();
     if (!moveCurtains) return;
     
@@ -204,14 +223,21 @@ export function moveCurtainsFunction() {
         curtainLeft.position.x -= curtainMovementSpeed;
     } else {
         moveCurtains = false;  // Stoppe die Bewegung, wenn das Ziel erreicht ist
+        curtainsInEndPosition = true;
     }
 }
 
 //Function to move camera after Curtain movement
 let cameraMovementSpeed = 0.2;
 let cameraEndPosition = 45;
+let theaterRoomHidden = false;
 
 export function moveCameraForward() {
+    if(curtainsInEndPosition && !theaterRoomHidden) {
+        console.log("Calling hideTheaterroom...");
+        hideTheaterroom();
+    }
+
     if (!moveCamera) return;
     
     // Berechne die Differenz zwischen der aktuellen und der Zielposition
@@ -221,31 +247,27 @@ export function moveCameraForward() {
         moveCamera = false;  // Stoppe die Bewegung, wenn das Ziel erreicht ist
         console.log("Calling enableCameraMovement...");
         enableCameraMovement();
-        console.log("Calling hideTheaterroom...");
-        hideTheaterroom();
     }
 }
 
 //Hide Theaterroom
 function hideTheaterroom() {
     console.log("Hiding theaterroom...");
-    let theaterRoom = getTheaterRoom();
-    let theaterChairs = getTheaterChairs();
-    let getCurtainLeft = getCurtainLeft();
-    let getCurtainRight = getCurtainRight();
-    let getCurtainRope = getCurtainRope();
     theaterRoom.visible = false;
     theaterChairs.visible = false;
-    getCurtainLeft.visible = false;
-    getCurtainRight.visible = false;
-    getCurtainRope.visible = false;
+    curtainLeft.visible = false;
+    curtainRight.visible = false;
+    curtainRope.visible = false;
+    theaterRoomHidden = true;
 }
 
 //----Enable camera control by mouse----
 export function enableCameraMovement() {
-    console.log("Enabling CameraMovement")
-    trackballControls = initTrackballControls(camera, gl);
-    console.log("CameraMovement enabled")
+    if(!trackballControls) {
+        console.log("Enabling CameraMovement")
+        trackballControls = initTrackballControls(camera, gl);
+        console.log("CameraMovement enabled")
+    }
     //console.log("TrackballControls set to: ", trackballControls);
 }
 
@@ -256,4 +278,40 @@ export function getTrackBallControls() {
 
 export function updateTrackBallControls(clockInput) {
     trackballControls.update(clockInput);
+}
+let amountOfClicks = 0;
+function onMouseClick(event) {
+    if(theaterRoomHidden) {
+        amountOfClicks++;
+
+        const mouse = new THREE.Vector2(
+            (event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1
+        );
+    
+        raycaster.setFromCamera(mouse, camera);
+        if(amountOfClicks == 1) {
+            const allIntersectedObjects = raycaster.intersectObjects(scene.children, true);
+            console.log("Objekte getroffen:", allIntersectedObjects);
+            if (allIntersectedObjects.length > 0) {
+                const firstIntersectedObject = allIntersectedObjects[0].object;
+                const worldPoint = allIntersectedObjects[0].point;
+                previousWorldPointY = worldPoint.y;
+        
+                if (firstIntersectedObject.userData.selectable) {
+                    instrumentToMove = firstIntersectedObject;
+                    
+                }
+            }
+        } else {
+            // Let go of instrument
+            amountOfClicks = 0;
+        }
+    }
+}
+
+
+
+export function selectIsntrument() {
+
 }
