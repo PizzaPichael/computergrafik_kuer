@@ -64,10 +64,10 @@ export async function setupInteractions(inScene, inCamera, inGl, initTrackballCo
     cello = getCello();
     piano = getPiano();
     violine = getVioline();
-
+    /*
     hideTheaterroom();
     enableCameraMovement();
-    cameraInFinalPosition = true;
+    cameraInFinalPosition = true;*/
 }
 
 let outDragPlane;
@@ -198,7 +198,6 @@ function onMouseMove(event) {
                 previousCordWorldPointY = wordlPointY;
             }
             if (firstIntersectedObject.name === "dragPlane" && allIntersectedObjects[1].object.name === "cord") {
-                console.log("dragPlane contact");
                 activateSpotlights();
                 setTimeout(startMovements(), 2000);
                 //console.log("moveCurtains set by dragPlane contact", moveCurtains);
@@ -212,9 +211,6 @@ function onMouseMove(event) {
         if(intersects.length > 0) {
             const intersect = intersects[0];
             const worldPoint = intersect.point;
-            console.log("Moving instrument...");
-            console.log("instrumentToMove: ", instrumentToMove);
-            console.log("worldPoint: ", worldPoint);
 
             instrumentToMove.position.x = worldPoint.x;
             instrumentToMove.position.y = instrumentsY;
@@ -247,9 +243,7 @@ function onMouseUp(event) {
 let amountOfClicks = 0;
 function onMouseClick(event) {
     if(theaterRoomHidden) {
-        console.log("MouseClick amountOfClicks:", amountOfClicks);
         amountOfClicks++;
-        console.log("MouseClick amountOfClicks:", amountOfClicks);
         const mouse = new THREE.Vector2(
             (event.clientX / window.innerWidth) * 2 - 1,
             -(event.clientY / window.innerHeight) * 2 + 1
@@ -258,23 +252,15 @@ function onMouseClick(event) {
         raycaster.setFromCamera(mouse, camera);
         if(amountOfClicks == 1) {
             const allIntersectedObjects = raycaster.intersectObjects(scene.children, true);
-            console.log("MouseClick Objekte getroffen:", allIntersectedObjects);
             if (allIntersectedObjects.length > 0) {
                 const firstIntersectedObject = allIntersectedObjects[0].object;
-                console.log("MouseClick firstIntersectedObject:", firstIntersectedObject);
-                console.log("MouseClick firstIntersectedObject.userData.selectable:", firstIntersectedObject.userData.selectable);
                 if (firstIntersectedObject.userData.selectable) {
                     createInstrumentDragPlane(scene);
-                    console.log("MousClick setting instrumentToMove to firstIntersectedObject");
                     instrumentToMove = firstIntersectedObject;
                     previousInstrumentWorldPointX = instrumentToMove.position.x;
-                    console.log("MouseClick previousInstrumentWorldPointX:", previousInstrumentWorldPointX);
                     previousInstrumentWorldPointZ = instrumentToMove.position.y;
-                    console.log("MouseClick previousInstrumentWorldPointY:", previousInstrumentWorldPointZ);
                     mouseMoveSituation = "instrument";
-                    console.log("MouseClick mouseMoveSituation set to ", mouseMoveSituation);
                 } else {
-                    console.log("No selectable object clicked.");
                     amountOfClicks = 0;
                 }
             }
@@ -282,9 +268,7 @@ function onMouseClick(event) {
             // Let go of instrument
             removeObjectFromScene(outInstrumentDragPlane);
             mouseMoveSituation = "";
-            console.log("MouseClick mouseMoveSituation set to ", mouseMoveSituation);
             amountOfClicks = 0;
-            console.log("MouseClick amountOfClicks:", amountOfClicks);
         }
     }
 }

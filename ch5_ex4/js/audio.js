@@ -22,10 +22,31 @@ export function setupAudio(camera) {
 
 export function playSound() {
     console.log("Playing sound...");
-    sound.play();
+    if (sound.context.state === 'suspended') {
+        sound.context.resume().then(() => {
+            sound.play();
+        });
+    } else {
+        sound.play();
+    }
+}
+
+export function suspendSound() {
+    console.log("Suspending sound...");
+    sound.context.suspend();
 }
 
 export function stopSound() {
     console.log("Stopping sound...");
     sound.stop();
+}
+
+export function muteSound() {
+    console.log("Muting sound...");
+    sound.setVolume(0);
+}
+
+export function unmuteSound() {
+    console.log("Unmuting sound...");
+    sound.setVolume(0.5);
 }

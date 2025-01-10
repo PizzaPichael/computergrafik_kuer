@@ -82,7 +82,7 @@ async function main() {
     await setupInteractions(scene, camera, gl);
 
     // Audio hinzufügen
-    await setupAudio(camera);
+    setupAudio(camera);
 
     // GUI hinzufügen
     await setupGui();
