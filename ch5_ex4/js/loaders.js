@@ -1,51 +1,32 @@
 var textureLoader;
 var objectLoader;
 
-let outPlane;
-function createInitPlane(scene, gl) {
-    //----Create initial plane----
-    const planeWidth = 0.1; //256
-    const planeHeight = 0.1;  //128
-    const planeGeometry = new THREE.PlaneGeometry(
-        planeWidth,
-        planeHeight
-    );
-    /*
-    const planeTextureMap = textureLoader.load(./textures/stone_texture4293.jpg');
-    planeTextureMap.wrapS = THREE.RepeatWrapping;
-    planeTextureMap.wrapT = THREE.RepeatWrapping;
-    planeTextureMap.repeat.set(16, 16);
+let outInstrumentActivationPlane;
+function createPlaneForInstrumentActivation(scene, gl) {
+    //----Create initial circular plane----
+    const radius = 18; 
+    const segments = 32; 
+    const planeGeometry = new THREE.CircleGeometry(radius, segments);
 
-    planeTextureMap.minFilter = THREE.NearestFilter;
-    planeTextureMap.anisotropy = gl.getMaxAnisotropy();
-    
-    const planeNorm = textureLoader.load(./textures/pebbles_normal.png');
-    planeNorm.wrapS = THREE.RepeatWrapping;
-    planeNorm.wrapT = THREE.RepeatWrapping;
-    planeNorm.minFilter = THREE.NearestFilter;
-    planeNorm.repeat.set(16, 16);
-    const planeMaterial = new THREE.MeshStandardMaterial({
-        map: planeTextureMap,
-        side: THREE.DoubleSide,
-        normalMap: planeNorm 
-    });*/
+    const planeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
 
-    const plane = new THREE.Mesh(planeGeometry); //, planeMaterial
-    plane.rotation.x = Math.PI / 2;
-    plane.receiveShadow = true;
-    plane.name = "plane";
-    outPlane = plane;
+    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    plane.rotation.x = Math.PI / 2; 
+    plane.receiveShadow = false;
+    plane.position.set(0, 2.6, 0);
+    plane.name = "circularPlane";
+    plane.visible = false;
+    outInstrumentActivationPlane = plane;
     scene.add(plane);
 
     return new Promise((resolve) => {
-        // ... (after plane creation is complete) ...
-        console.log("...delivering promise...")
+        console.log("...delivering promise...");
         resolve();
     });
 }
 
-export function getPlane() {
-    return outPlane;
+export function getInstrumentActivationPlane() {
+    return outInstrumentActivationPlane;
 }
 
 let outBackgroundSphere;
@@ -413,6 +394,7 @@ function createStage(scene) {
                     stage = mesh;
 
                     scene.add(mesh);
+
                     // Auflösung des Promises
                     resolve();
                 },
@@ -691,14 +673,13 @@ export function getVioline() {
     return violine;
 }
 
-
 export async function loadObjects(scene, gl) {
     console.log("Loaders: Loading objects...");
 
     textureLoader = new THREE.TextureLoader();
     objectLoader = new THREE.OBJLoader();
     //----Create Objects in the Scene----
-    await createInitPlane(scene, gl);
+    await createPlaneForInstrumentActivation(scene, gl);
 
     await createBackgroundSphere(scene);
     
@@ -725,7 +706,7 @@ export async function loadObjects(scene, gl) {
     await createVioline(scene);
 
     console.log("Objects: ");
-    console.log("Plane: ", outPlane);
+    console.log("Plane: ", outInstrumentActivationPlane);
     console.log("BackgroundSphere: ", outBackgroundSphere);
     console.log("TheaterRoom: ", outTheaterRoom);
     console.log("Fog: ", outFog);

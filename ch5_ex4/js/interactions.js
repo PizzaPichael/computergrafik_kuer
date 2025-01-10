@@ -1,5 +1,6 @@
 import { getScene, getCamera } from "./app.js";
-import { getCello, getCurtainRope, getCurtainLeft, getCurtainRight, getTheaterRoom, getTheaterChairs } from "./loaders.js";
+import { getCello, getCurtainRope, getCurtainLeft, getCurtainRight, getTheaterRoom, getTheaterChairs, getInstrumentActivationPlane, getPiano, getVioline } from "./loaders.js";
+import { updateStatus } from "./gui.js";
 
 // ---- Raycaster und Interaktion ----
 const raycaster = new THREE.Raycaster();
@@ -8,16 +9,20 @@ var scene;
 var camera;
 var gl;
 var cello;
+var piano;
+var violine;
 var cord;
+var instrumentActivationPlane;
 var trackballControls;
 var mouseMoveSituation = "";
 var instrumentToMove = null;
 
-let theaterRoom = getTheaterRoom();
-let theaterChairs = getTheaterChairs();
-let curtainLeft = getCurtainLeft();
-let curtainRight = getCurtainRight();
-let curtainRope = getCurtainRope();
+
+let theaterRoom;
+let theaterChairs;
+let curtainLeft;
+let curtainRight;
+let curtainRope;
 
 export function getRaycaster() {
     return raycaster;
@@ -39,7 +44,6 @@ export async function setupInteractions(inScene, inCamera, inGl, initTrackballCo
     window.addEventListener('mouseup', onMouseUp);
     createDragPlane(scene);
     createLimitPlane(scene);
-    cello = getCello();
     cord = getCurtainRope();
 
     // Event Listener for moving the instruments
@@ -55,7 +59,15 @@ export async function setupInteractions(inScene, inCamera, inGl, initTrackballCo
     curtainRight = getCurtainRight();
     curtainRope = getCurtainRope();
 
+    // Initialising instrumentActivationPlane
+    instrumentActivationPlane = getInstrumentActivationPlane();
+    cello = getCello();
+    piano = getPiano();
+    violine = getVioline();
+
     hideTheaterroom();
+    enableCameraMovement();
+    cameraInFinalPosition = true;
 }
 
 let outDragPlane;
@@ -94,6 +106,20 @@ export function getLimitPlane() {
     return outLimitPlane;
 }
 
+let outInstrumentDragPlane;
+function createInstrumentDragPlane(scene) {
+    // DragPlane
+    const instrumentDragPlaneGeometry = new THREE.PlaneGeometry(100, 100);
+    const instrumentDragPlaneMaterial = new THREE.MeshBasicMaterial({ visible: true, color: 0xFFC0CB });
+    const instrumentDragPlane = new THREE.Mesh(instrumentDragPlaneGeometry, instrumentDragPlaneMaterial);
+
+    instrumentDragPlane.rotation.x = -Math.PI / 2;
+    instrumentDragPlane.position.set(0, 3, 0); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+    instrumentDragPlane.name = "instrumentDragPlane";
+    outInstrumentDragPlane = instrumentDragPlane;
+    scene.add(instrumentDragPlane);
+}
+
 
 // Funktion zum Starten der Kordelbewegung
 let cordObject = null;
@@ -126,18 +152,27 @@ function onMouseDown(event) {
 
 }
 
+// Funktion zum Abfragen der x- und y-Koordinaten des Raycasters, geschrieben von Copilot
+function getRaycasterCoords(event) {
+    const mouse = new THREE.Vector2();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    return mouse;
+}
+
 // Funktion zum Bewegen der Kordel
 let moveCurtains = false;
 let moveCamera = false;
 let worldCordYDifference = null;
 let lastCordY = null;
+
 let previousInstrumentWorldPointX = null;
-let previousInstrumentWorldPointY = null;
-let worldInstrumentXDifference = null;
-let worldInstrumentYDifference = null;
+let previousInstrumentWorldPointZ = null;
+let instrumentsY = 2.5;
 
 
 function onMouseMove(event) {
+    const mouseCoords = getRaycasterCoords(event);
     if(mouseMoveSituation == "cord") {
         if (!isDragging) {
             return;
@@ -171,19 +206,23 @@ function onMouseMove(event) {
             }
         }
     } else if(mouseMoveSituation == "instrument") {
-        console.log("Moving instrument...");
-        console.log("instrumentToMove: ", instrumentToMove);
-        const worldPoint = instrumentToMove.position;
-        let worldPointX = worldPoint.x;
-        let wordlPointY = worldPoint.y;
-        worldInstrumentXDifference = worldPointX - previousInstrumentWorldPointX;
-        worldInstrumentYDifference = wordlPointY - previousInstrumentWorldPointY;
-        instrumentToMove.position.x += worldInstrumentXDifference;
-        instrumentToMove.position.y += worldInstrumentYDifference;
-        previousInstrumentWorldPointX = worldPointX;
-        previousInstrumentWorldPointY = wordlPointY;
+        raycaster.setFromCamera(mouseCoords, camera);
+        const intersects = raycaster.intersectObjects(scene.children, true);
 
-        //TODO implement instrument movement
+        if(intersects.length > 0) {
+            const intersect = intersects[0];
+            const worldPoint = intersect.point;
+            console.log("Moving instrument...");
+            console.log("instrumentToMove: ", instrumentToMove);
+            console.log("worldPoint: ", worldPoint);
+
+            instrumentToMove.position.x = worldPoint.x;
+            instrumentToMove.position.y = instrumentsY;
+            instrumentToMove.position.z = worldPoint.z;
+
+            previousInstrumentWorldPointX = worldPoint.x;
+            previousInstrumentWorldPointZ = worldPoint.z;
+        }
     }
     
     
@@ -225,12 +264,13 @@ function onMouseClick(event) {
                 console.log("MouseClick firstIntersectedObject:", firstIntersectedObject);
                 console.log("MouseClick firstIntersectedObject.userData.selectable:", firstIntersectedObject.userData.selectable);
                 if (firstIntersectedObject.userData.selectable) {
+                    createInstrumentDragPlane(scene);
                     console.log("MousClick setting instrumentToMove to firstIntersectedObject");
                     instrumentToMove = firstIntersectedObject;
                     previousInstrumentWorldPointX = instrumentToMove.position.x;
                     console.log("MouseClick previousInstrumentWorldPointX:", previousInstrumentWorldPointX);
-                    previousInstrumentWorldPointY = instrumentToMove.position.y;
-                    console.log("MouseClick previousInstrumentWorldPointY:", previousInstrumentWorldPointY);
+                    previousInstrumentWorldPointZ = instrumentToMove.position.y;
+                    console.log("MouseClick previousInstrumentWorldPointY:", previousInstrumentWorldPointZ);
                     mouseMoveSituation = "instrument";
                     console.log("MouseClick mouseMoveSituation set to ", mouseMoveSituation);
                 } else {
@@ -240,6 +280,7 @@ function onMouseClick(event) {
             }
         } else {
             // Let go of instrument
+            removeObjectFromScene(outInstrumentDragPlane);
             mouseMoveSituation = "";
             console.log("MouseClick mouseMoveSituation set to ", mouseMoveSituation);
             amountOfClicks = 0;
@@ -250,7 +291,6 @@ function onMouseClick(event) {
 
 // Activate theaterroom spotlights
 var spotLight1 = null;
-var spotLight2 = null;
 
 function activateSpotlights() { 
     spotLight1 = new THREE.SpotLight(0xffffff, 1, 100, Math.PI / 6, 0.5, 2);
@@ -361,6 +401,38 @@ export function updateTrackBallControls(clockInput) {
     trackballControls.update(clockInput);
 }
 
-export function selectIsntrument() {
+function isObjectWithinActivationPlane(object) {
+    const planePosition = instrumentActivationPlane.position;
+    const planeRadius = instrumentActivationPlane.geometry.parameters.radius;
+
+    const distance = Math.sqrt(
+        Math.pow(object.position.x - planePosition.x, 2) +
+        Math.pow(object.position.z - planePosition.z, 2)
+    );
+
+    return distance <= planeRadius;
+}
+
+export function checkInstrumentsPosition() {
+    if(cameraInFinalPosition) {
+        if(isObjectWithinActivationPlane(cello)) {
+            updateStatus('1', true);
+        } else {
+            updateStatus('1', false);
+        }
+
+        if(isObjectWithinActivationPlane(piano)) {
+            updateStatus('2', true);
+        } else {
+            updateStatus('2', false);
+        }
+
+        if(isObjectWithinActivationPlane(violine)) {
+            updateStatus('3', true);
+        } else {
+            updateStatus('3', false);
+        }
+
+    }
 
 }

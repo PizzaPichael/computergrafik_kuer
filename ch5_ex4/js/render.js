@@ -5,7 +5,8 @@ import {
     getRaycaster, 
     getMouse,
     moveCurtainsFunction,
-    moveCameraForward
+    moveCameraForward,
+    checkInstrumentsPosition
 } from "./interactions.js";
 
 export function renderLoop(scene, camera, gl) {
@@ -57,6 +58,7 @@ export function renderLoop(scene, camera, gl) {
 
         moveCurtainsFunction();
         moveCameraForward();
+        checkInstrumentsPosition();
 
         gl.render(scene, camera);
         

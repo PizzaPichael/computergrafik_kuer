@@ -1,11 +1,11 @@
-import { getPlane } from "./loaders.js";
+import { getInstrumentActivationPlane } from "./loaders.js";
 
 export async function loadLights(scene) {   
     //----Lights-----
     const color = 0xffffff;
     const intensity = .7;
     const light = new THREE.DirectionalLight(color, intensity);
-    light.target = getPlane();
+    light.target = getInstrumentActivationPlane();
     console.log("Light target: ", light.target);
     light.position.set(0, 30, 30);
     light.name = "directionalLight";
