@@ -501,22 +501,37 @@ function createPiano(scene) {
                 function (mesh) {
                     var material = new THREE.MeshPhongMaterial({ map: pianoTexture, normalMap: pianoNormalMap });
 
+                    // Eine neue leere Geometrie für das kombinierte Mesh
+                    var combinedGeometry = new THREE.BufferGeometry();
+
                     mesh.traverse(function (child) {
                         if (child.isMesh) {
                             child.material = material;
                             child.castShadow = true;
                             child.receiveShadow = true;
                             child.userData.selectable = true;
+
+                            // Geometrie des aktuellen Meshes zum combinedGeometry hinzufügen
+                            if (combinedGeometry.attributes.position === undefined) {
+                                // Falls die Geometrie leer ist, füge die Geometrie des ersten Meshes hinzu
+                                combinedGeometry = child.geometry.clone();
+                            } else {
+                                // Wenn bereits Geometrie vorhanden ist, kombiniere sie
+                                combinedGeometry.merge(child.geometry, child.matrix);
+                            }
                         }
                     });
 
-                    mesh.position.set(1.3, 2.5, -10); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)  
-                    mesh.rotation.set(0, -100, 0);
-                    mesh.scale.set(0.06, 0.06, 0.06);
-                    mesh.name = "piano";
-                    piano = mesh;
+                    // Erstelle ein neues Mesh mit der kombinierten Geometrie
+                    var combinedMesh = new THREE.Mesh(combinedGeometry, material);  
+                    combinedMesh.position.set(1.3, 2.5, -10); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)  
+                    combinedMesh.rotation.set(0, -100, 0);
+                    combinedMesh.scale.set(0.06, 0.06, 0.06);
+                    combinedMesh.name = "piano";
+                    combinedMesh.userData.selectable = true;
+                    piano = combinedMesh;
 
-                    scene.add(mesh);
+                    scene.add(combinedMesh);
 
                     resolve();
                 },
@@ -555,22 +570,37 @@ function createCello(scene) {
                 function (mesh) {
                     var material = new THREE.MeshPhongMaterial({ map: celloTexture });
 
+                    // Eine neue leere Geometrie für das kombinierte Mesh
+                    var combinedGeometry = new THREE.BufferGeometry();
+
                     mesh.traverse(function (child) {
                         if (child.isMesh) {
                             child.material = material;
                             child.castShadow = true;
                             child.receiveShadow = true;
                             child.userData.selectable = true;
+
+                            // Geometrie des aktuellen Meshes zum combinedGeometry hinzufügen
+                            if (combinedGeometry.attributes.position === undefined) {
+                                // Falls die Geometrie leer ist, füge die Geometrie des ersten Meshes hinzu
+                                combinedGeometry = child.geometry.clone();
+                            } else {
+                                // Wenn bereits Geometrie vorhanden ist, kombiniere sie
+                                combinedGeometry.merge(child.geometry, child.matrix);
+                            }
                         }
                     });
 
-                    mesh.position.set(-10.7, 2.5, 5); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-                    mesh.rotation.set(350, 0, 0); //300 = 90°
-                    mesh.scale.set(0.015, 0.015, 0.015);
-                    mesh.name = "cello";
-                    cello = mesh;
+                    // Erstelle ein neues Mesh mit der kombinierten Geometrie
+                    var combinedMesh = new THREE.Mesh(combinedGeometry, material);  
+                    combinedMesh.position.set(-10.7, 2.5, 5); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    combinedMesh.rotation.set(350, 0, 0); //300 = 90°
+                    combinedMesh.scale.set(0.015, 0.015, 0.015);
+                    combinedMesh.name = "cello";
+                    combinedMesh.userData.selectable = true;
+                    cello = combinedMesh;
 
-                    scene.add(mesh);
+                    scene.add(combinedMesh);
                     resolve();
 
                 },
@@ -609,21 +639,36 @@ function createVioline(scene) {
                 function (mesh) {
                     var material = new THREE.MeshPhongMaterial({ map: violineTexture, normalMap: violineNormalMap });
 
+                    // Eine neue leere Geometrie für das kombinierte Mesh
+                    var combinedGeometry = new THREE.BufferGeometry();
+
                     mesh.traverse(function (child) {
                         if (child.isMesh) {
                             child.material = material;
                             child.castShadow = true;
                             child.receiveShadow = true;
                             child.userData.selectable = true;
+
+                            // Geometrie des aktuellen Meshes zum combinedGeometry hinzufügen
+                            if (combinedGeometry.attributes.position === undefined) {
+                                // Falls die Geometrie leer ist, füge die Geometrie des ersten Meshes hinzu
+                                combinedGeometry = child.geometry.clone();
+                            } else {
+                                // Wenn bereits Geometrie vorhanden ist, kombiniere sie
+                                combinedGeometry.merge(child.geometry, child.matrix);
+                            }
                         }
                     });
 
-                    mesh.position.set(10, 2.5, 5); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-                    mesh.rotation.set(0, -2.356, 0.175); //300 = 90°
-                    mesh.scale.set(0.015, 0.015, 0.015);
-                    mesh.name = "violine";
-                    violine = mesh;
-                    scene.add(mesh);
+                    // Erstelle ein neues Mesh mit der kombinierten Geometrie
+                    var combinedMesh = new THREE.Mesh(combinedGeometry, material);
+                    combinedMesh.position.set(10, 2.5, 5); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    combinedMesh.rotation.set(0, -2.356, 0.175); //300 = 90°
+                    combinedMesh.scale.set(0.015, 0.015, 0.015);
+                    combinedMesh.name = "violine";
+                    combinedMesh.userData.selectable = true;
+                    violine = combinedMesh;
+                    scene.add(combinedMesh);
                     resolve();
 
                 },
