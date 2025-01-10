@@ -380,46 +380,55 @@ export function getCurtainRope() {
 }
 
 function createStage(scene) {
-    //----Stage----
-    const stageTexture = textureLoader.load('./textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
-    stageTexture.wrapS = THREE.RepeatWrapping;
-    stageTexture.wrapT = THREE.RepeatWrapping;
-    stageTexture.repeat.set(10, 10)
+    return new Promise((resolve, reject) => {
+        try {
+            //----Stage----
+            const stageTexture = textureLoader.load('./textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
+            stageTexture.wrapS = THREE.RepeatWrapping;
+            stageTexture.wrapT = THREE.RepeatWrapping;
+            stageTexture.repeat.set(10, 10)
 
-    const stageNormalMap = textureLoader.load('./textures/wood_cabinet/wood_planks_normal.png');
-    stageNormalMap.wrapS = THREE.RepeatWrapping;
-    stageNormalMap.wrapT = THREE.RepeatWrapping;
-    stageNormalMap.repeat.set(10, 10)
+            const stageNormalMap = textureLoader.load('./textures/wood_cabinet/wood_planks_normal.png');
+            stageNormalMap.wrapS = THREE.RepeatWrapping;
+            stageNormalMap.wrapT = THREE.RepeatWrapping;
+            stageNormalMap.repeat.set(10, 10)
 
-    objectLoader.load('objects/BuehneFullCircleNachBlender.obj',
-        function (mesh) {
-            var material = new THREE.MeshPhongMaterial({ map: stageTexture, normalMap: stageNormalMap });
+            objectLoader.load('objects/BuehneFullCircleNachBlender.obj',
+                function (mesh) {
+                    var material = new THREE.MeshPhongMaterial({ map: stageTexture, normalMap: stageNormalMap });
 
-            mesh.traverse(function (child) {
-                if (child.isMesh) {
-                    child.material = material;
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    child.userData.selectable = false;
+                    mesh.traverse(function (child) {
+                        if (child.isMesh) {
+                            child.material = material;
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            child.userData.selectable = false;
+                        }
+                    });
+
+                    mesh.position.set(-18.7, -2.5, 0);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    mesh.rotation.set(-Math.PI / 2, 0, 0);
+                    mesh.scale.set(500, 500, 250);
+                    mesh.name = "stage";
+                    stage = mesh;
+
+                    scene.add(mesh);
+                    // Auflösung des Promises
+                    resolve();
+                },
+                function (xhr) {
+                    console.log("stage " + (xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.log(error);
+                    console.log('An error happened');
                 }
-            });
-
-            mesh.position.set(-18.7, -2.5, 0);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-            mesh.rotation.set(-Math.PI / 2, 0, 0);
-            mesh.scale.set(500, 500, 250);
-            mesh.name = "stage";
-            stage = mesh;
-
-            scene.add(mesh);
-        },
-        function (xhr) {
-            console.log("stage " + (xhr.loaded / xhr.total * 100) + '% loaded');
-        },
-        function (error) {
-            console.log(error);
-            console.log('An error happened');
+            );
+        } catch (error) {
+            console.error("Error in createTheaterRoom:", error);
+            reject(error);
         }
-    );
+    });
 }
 
 export function getStage() {
@@ -427,40 +436,49 @@ export function getStage() {
 }
 
 function createStageRim(scene, gl) {
-    //----Stagerim----
-    const stageRimTexture = textureLoader.load('./textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
-    stageRimTexture.wrapS = THREE.RepeatWrapping;
-    stageRimTexture.wrapT = THREE.RepeatWrapping;
+    return new Promise((resolve, reject) => {
+        try {
+            //----Stagerim----
+            const stageRimTexture = textureLoader.load('./textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
+            stageRimTexture.wrapS = THREE.RepeatWrapping;
+            stageRimTexture.wrapT = THREE.RepeatWrapping;
 
-    objectLoader.load('objects/stageRimFullCircle38_5.obj',
-        function (mesh) {
-            var material = new THREE.MeshPhongMaterial({ map: stageRimTexture });
+            objectLoader.load('objects/stageRimFullCircle38_5.obj',
+                function (mesh) {
+                    var material = new THREE.MeshPhongMaterial({ map: stageRimTexture });
 
-            mesh.traverse(function (child) {
-                if (child.isMesh) {
-                    child.material = material;
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    child.userData.selectable = false;
+                    mesh.traverse(function (child) {
+                        if (child.isMesh) {
+                            child.material = material;
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            child.userData.selectable = false;
+                        }
+                    });
+
+                    mesh.position.set(-18.7, -2.5, 0);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    mesh.rotation.set(-Math.PI / 2, 0, 0);
+                    mesh.scale.set(500, 500, 250);
+                    mesh.name = "stageRim";
+                    stageRim = mesh;
+
+                    scene.add(mesh);
+
+                    resolve();
+                },
+                function (xhr) {
+                    console.log("stageRim " + (xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.log(error);
+                    console.log('An error happened');
                 }
-            });
-
-            mesh.position.set(-18.7, -2.5, 0);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-            mesh.rotation.set(-Math.PI / 2, 0, 0);
-            mesh.scale.set(500, 500, 250);
-            mesh.name = "stageRim";
-            stageRim = mesh;
-
-            scene.add(mesh);
-        },
-        function (xhr) {
-            console.log("stageRim " + (xhr.loaded / xhr.total * 100) + '% loaded');
-        },
-        function (error) {
-            console.log(error);
-            console.log('An error happened');
+            );
+        } catch (error) {
+            console.error("Error in createTheaterRoom:", error);
+            reject(error);
         }
-    );
+    });
 }
 
 export function getStageRim() {
@@ -468,44 +486,53 @@ export function getStageRim() {
 }
 
 function createPiano(scene) {
-    //----Piano----
-    const pianoTexture = textureLoader.load('./textures/piano/new/main_Albedo.png');
-    pianoTexture.wrapS = THREE.RepeatWrapping;
-    pianoTexture.wrapT = THREE.RepeatWrapping;
+    return new Promise((resolve, reject) => {
+        try {
+            //----Piano----
+            const pianoTexture = textureLoader.load('./textures/piano/new/main_Albedo.png');
+            pianoTexture.wrapS = THREE.RepeatWrapping;
+            pianoTexture.wrapT = THREE.RepeatWrapping;
 
-    const pianoNormalMap = textureLoader.load('./textures/piano/new/main_Normal.png');
-    pianoNormalMap.wrapS = THREE.RepeatWrapping;
-    pianoNormalMap.wrapT = THREE.RepeatWrapping;
+            const pianoNormalMap = textureLoader.load('./textures/piano/new/main_Normal.png');
+            pianoNormalMap.wrapS = THREE.RepeatWrapping;
+            pianoNormalMap.wrapT = THREE.RepeatWrapping;
 
-    objectLoader.load('objects/piano/uploads_files_4987684_Piano.obj',
-        function (mesh) {
-            var material = new THREE.MeshPhongMaterial({ map: pianoTexture, normalMap: pianoNormalMap });
+            objectLoader.load('objects/piano/uploads_files_4987684_Piano.obj',
+                function (mesh) {
+                    var material = new THREE.MeshPhongMaterial({ map: pianoTexture, normalMap: pianoNormalMap });
 
-            mesh.traverse(function (child) {
-                if (child.isMesh) {
-                    child.material = material;
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    child.userData.selectable = true;
+                    mesh.traverse(function (child) {
+                        if (child.isMesh) {
+                            child.material = material;
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            child.userData.selectable = true;
+                        }
+                    });
+
+                    mesh.position.set(-10.7, 2.5, -8); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    mesh.rotation.set(0, -100, 0);
+                    mesh.scale.set(0.038, 0.038, 0.038);
+                    mesh.name = "piano";
+                    piano = mesh;
+
+                    scene.add(mesh);
+
+                    resolve();
+                },
+                function (xhr) {
+                    console.log("piano " + (xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.log(error);
+                    console.log('An error happened');
                 }
-            });
-
-            mesh.position.set(-10.7, 2.5, -8); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-            mesh.rotation.set(0, -100, 0);
-            mesh.scale.set(0.038, 0.038, 0.038);
-            mesh.name = "piano";
-            piano = mesh;
-
-            scene.add(mesh);
-        },
-        function (xhr) {
-            console.log("piano " + (xhr.loaded / xhr.total * 100) + '% loaded');
-        },
-        function (error) {
-            console.log(error);
-            console.log('An error happened');
+            );
+        } catch (error) {
+            console.error("Error in createTheaterRoom:", error);
+            reject(error);
         }
-    );
+    });
 }
 
 export function getPiano() {
@@ -513,44 +540,53 @@ export function getPiano() {
 }
 
 function createCello(scene) {
-    //----Cello----
-    const celloTexture = textureLoader.load('./textures/cello/10372_Cello_v01.jpg');
-    celloTexture.wrapS = THREE.RepeatWrapping;
-    celloTexture.wrapT = THREE.RepeatWrapping;
+    return new Promise((resolve, reject) => {
+        try {
+            //----Cello----
+            const celloTexture = textureLoader.load('./textures/cello/10372_Cello_v01.jpg');
+            celloTexture.wrapS = THREE.RepeatWrapping;
+            celloTexture.wrapT = THREE.RepeatWrapping;
 
-    const celloNormalMap = textureLoader.load('./textures/cello/celloNormalMap.png');
-    celloNormalMap.wrapS = THREE.RepeatWrapping;
-    celloNormalMap.wrapT = THREE.RepeatWrapping;
+            const celloNormalMap = textureLoader.load('./textures/cello/celloNormalMap.png');
+            celloNormalMap.wrapS = THREE.RepeatWrapping;
+            celloNormalMap.wrapT = THREE.RepeatWrapping;
 
-    objectLoader.load('objects/cello/10372_Cello_v01_l3.obj',
-        function (mesh) {
-            var material = new THREE.MeshPhongMaterial({ map: celloTexture });
+            objectLoader.load('objects/cello/10372_Cello_v01_l3.obj',
+                function (mesh) {
+                    var material = new THREE.MeshPhongMaterial({ map: celloTexture });
 
-            mesh.traverse(function (child) {
-                if (child.isMesh) {
-                    child.material = material;
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    child.userData.selectable = true;
+                    mesh.traverse(function (child) {
+                        if (child.isMesh) {
+                            child.material = material;
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            child.userData.selectable = true;
+                        }
+                    });
+
+                    mesh.position.set(1.3, 2.5, -10); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    mesh.rotation.set(350, 0, 0); //300 = 90°
+                    mesh.scale.set(0.01, 0.01, 0.01);
+                    mesh.name = "cello";
+                    cello = mesh;
+
+                    scene.add(mesh);
+                    resolve();
+
+                },
+                function (xhr) {
+                    console.log("cello " + (xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.log(error);
+                    console.log('An error happened');
                 }
-            });
-
-            mesh.position.set(1.3, 2.5, -10); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-            mesh.rotation.set(350, 0, 0); //300 = 90°
-            mesh.scale.set(0.01, 0.01, 0.01);
-            mesh.name = "cello";
-            cello = mesh;
-
-            scene.add(mesh);
-        },
-        function (xhr) {
-            console.log("cello " + (xhr.loaded / xhr.total * 100) + '% loaded');
-        },
-        function (error) {
-            console.log(error);
-            console.log('An error happened');
+            );
+        } catch (error) {
+            console.error("Error in createTheaterRoom:", error);
+            reject(error);
         }
-    );
+    });
 }
 
 export function getCello() {
@@ -558,43 +594,52 @@ export function getCello() {
 }
 
 function createVioline(scene) {
-    //----Violine----
-    const violineTexture = textureLoader.load('./textures/violine/ViolinHomeWork_TD_Checker_Diffuse.png');
-    violineTexture.wrapS = THREE.RepeatWrapping;
-    violineTexture.wrapT = THREE.RepeatWrapping;
+    return new Promise((resolve, reject) => {
+        try {
+            //----Violine----
+            const violineTexture = textureLoader.load('./textures/violine/ViolinHomeWork_TD_Checker_Diffuse.png');
+            violineTexture.wrapS = THREE.RepeatWrapping;
+            violineTexture.wrapT = THREE.RepeatWrapping;
 
-    const violineNormalMap = textureLoader.load('./textures/violine/ViolinHomeWork_TD_Checker_Normal.png');
-    violineNormalMap.wrapS = THREE.RepeatWrapping;
-    violineNormalMap.wrapT = THREE.RepeatWrapping;
+            const violineNormalMap = textureLoader.load('./textures/violine/ViolinHomeWork_TD_Checker_Normal.png');
+            violineNormalMap.wrapS = THREE.RepeatWrapping;
+            violineNormalMap.wrapT = THREE.RepeatWrapping;
 
-    objectLoader.load('objects/violine/V2.obj',
-        function (mesh) {
-            var material = new THREE.MeshPhongMaterial({ map: violineTexture, normalMap: violineNormalMap });
+            objectLoader.load('objects/violine/V2.obj',
+                function (mesh) {
+                    var material = new THREE.MeshPhongMaterial({ map: violineTexture, normalMap: violineNormalMap });
 
-            mesh.traverse(function (child) {
-                if (child.isMesh) {
-                    child.material = material;
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    child.userData.selectable = true;
+                    mesh.traverse(function (child) {
+                        if (child.isMesh) {
+                            child.material = material;
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            child.userData.selectable = true;
+                        }
+                    });
+
+                    mesh.position.set(9.3, 2.5, -8); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    mesh.rotation.set(0, -2.356, 0.175); //300 = 90°
+                    mesh.scale.set(0.01, 0.01, 0.01);
+                    mesh.name = "violine";
+                    violine = mesh;
+                    scene.add(mesh);
+                    resolve();
+
+                },
+                function (xhr) {
+                    console.log("violine " + (xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.log(error);
+                    console.log('An error happened');
                 }
-            });
-
-            mesh.position.set(9.3, 2.5, -8); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-            mesh.rotation.set(0, -2.356, 0.175); //300 = 90°
-            mesh.scale.set(0.01, 0.01, 0.01);
-            mesh.name = "violine";
-            violine = mesh;
-            scene.add(mesh);
-        },
-        function (xhr) {
-            console.log("violine " + (xhr.loaded / xhr.total * 100) + '% loaded');
-        },
-        function (error) {
-            console.log(error);
-            console.log('An error happened');
+            );
+        } catch (error) {
+            console.error("Error in createTheaterRoom:", error);
+            reject(error);
         }
-    );
+    });
 }
 
 export function getVioline() {

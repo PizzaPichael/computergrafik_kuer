@@ -29,7 +29,7 @@ export function renderLoop(scene, camera, gl) {
 
     //enableCameraMovement();
     let raycaster = getRaycaster();
-    let trackballControls = getTrackBallControls();
+    let trackballControls;
     let mouse = getMouse();
 
     //----Draw----
@@ -37,7 +37,9 @@ export function renderLoop(scene, camera, gl) {
         time *= 0.001;
 
         //setTimeout(enableCameraMovement, 10000); // Enable camera movement after X milliseconds (1s = 1000ms)
-        
+        trackballControls = getTrackBallControls();
+        //console.log("TrackballControls: ", trackballControls);
+
         if(trackballControls) {
             updateTrackBallControls(clock.getDelta());
         }
@@ -55,21 +57,6 @@ export function renderLoop(scene, camera, gl) {
 
         moveCurtainsFunction();
         moveCameraForward();
-
-        //Aufgb b)
-        // rotate the cube around its axes
-        /*cube.rotation.x += controls.rotationSpeed;
-        cube.rotation.y += controls.rotationSpeed;
-        cube.rotation.z += controls.rotationSpeed;
-
-        // rotate the sphere around its axes
-        sphere.rotation.x += controls.rotationSpeed;
-        sphere.rotation.y += controls.rotationSpeed;
-        sphere.rotation.z += controls.rotationSpeed;
-
-        // make stuff move on z axis
-        sphere.position.z = -controls.positionZ;
-        cube.position.z = -controls.positionZ;*/
 
         gl.render(scene, camera);
         

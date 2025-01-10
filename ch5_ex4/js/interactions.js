@@ -1,5 +1,5 @@
 import { getScene, getCamera } from "./app.js";
-import { getCello, getCurtainRope, getCurtainLeft, getCurtainRight } from "./loaders.js";
+import { getCello, getCurtainRope, getCurtainLeft, getCurtainRight, getTheaterRoom, getTheaterChairs } from "./loaders.js";
 
 // ---- Raycaster und Interaktion ----
 const raycaster = new THREE.Raycaster();
@@ -9,6 +9,7 @@ var camera;
 var gl;
 var cello;
 var cord;
+var trackballControls;
 
 export function getRaycaster() {
     return raycaster;
@@ -19,10 +20,12 @@ export function getMouse() {
 }
 
 //----Setup function----
-export async function setupInteractions(inScene, inCamera, inGl) {
+export async function setupInteractions(inScene, inCamera, inGl, initTrackballControls) {
     scene = inScene;
     camera = inCamera;
     gl = inGl;
+    trackballControls = initTrackballControls;
+
     // Event Listener
     window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
@@ -173,7 +176,6 @@ function activateSpotlights() {
     spotLight1.target = cello;
     console.log("Target set: ", spotLight1.target);
     scene.add(spotLight1);
-    enableCameraMovement(gl);
 }
 
 //Start movements
@@ -206,7 +208,7 @@ export function moveCurtainsFunction() {
 }
 
 //Function to move camera after Curtain movement
-let cameraMovementSpeed = 0.08;
+let cameraMovementSpeed = 0.2;
 let cameraEndPosition = 45;
 
 export function moveCameraForward() {
@@ -217,27 +219,38 @@ export function moveCameraForward() {
         camera.position.z -= cameraMovementSpeed;
     } else {
         moveCamera = false;  // Stoppe die Bewegung, wenn das Ziel erreicht ist
+        console.log("Calling enableCameraMovement...");
         enableCameraMovement();
+        console.log("Calling hideTheaterroom...");
         hideTheaterroom();
     }
 }
 
 //Hide Theaterroom
 function hideTheaterroom() {
-    cube.visible = false;
+    console.log("Hiding theaterroom...");
+    let theaterRoom = getTheaterRoom();
+    let theaterChairs = getTheaterChairs();
+    let getCurtainLeft = getCurtainLeft();
+    let getCurtainRight = getCurtainRight();
+    let getCurtainRope = getCurtainRope();
+    theaterRoom.visible = false;
     theaterChairs.visible = false;
-    curtainLeft.visible = false;
-    curtainRight.visible = false;
-    curtainRope.visible = false;
+    getCurtainLeft.visible = false;
+    getCurtainRight.visible = false;
+    getCurtainRope.visible = false;
 }
 
 //----Enable camera control by mouse----
-var trackballControls
 export function enableCameraMovement() {
+    console.log("Enabling CameraMovement")
     trackballControls = initTrackballControls(camera, gl);
+    console.log("CameraMovement enabled")
+    //console.log("TrackballControls set to: ", trackballControls);
 }
 
 export function getTrackBallControls() {
+    //console.log("Called getTrackBallControls")
     return trackballControls;
 }
 
