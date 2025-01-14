@@ -3,7 +3,7 @@ var objectLoader;
 
 let outInstrumentActivationPlane;
 function createPlaneForInstrumentActivation(scene, gl) {
-    //----Create initial circular plane----
+    //Plane is used to spot if instrument is on stage or not
     const radius = 18; 
     const segments = 32; 
     const planeGeometry = new THREE.CircleGeometry(radius, segments);
@@ -129,6 +129,8 @@ let theaterChairs;
 let curtainLeft;
 let curtainRight;
 let curtainRope;
+let outCanvasPlane;
+let outPortalPlane;
 let stage;
 let stageRim;
 let piano;
@@ -358,6 +360,63 @@ function createCurtainRope(scene) {
 
 export function getCurtainRope() {
     return curtainRope;
+}
+
+function createCanvasPlane(scene, gl) {
+    //----Create initial circular plane----
+    const canvasGeometry = new THREE.PlaneGeometry(50, 25);
+
+    const canvasTexture = textureLoader.load('./textures/leinwand/leinwand.png');
+    const canvasMaterial = new THREE.MeshBasicMaterial({ map: canvasTexture, side: THREE.DoubleSide });
+
+
+    const plane = new THREE.Mesh(canvasGeometry, canvasMaterial);
+    //plane.rotation.x = Math.PI / 2; 
+    plane.receiveShadow = false;
+    plane.position.set(0, 18, 45.1); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+    plane.name = "canvasPlane";
+    plane.visible = true;
+    outCanvasPlane = plane;
+    scene.add(plane);
+
+    return new Promise((resolve) => {
+        console.log("...delivering promise...");
+        resolve();
+    });
+}
+
+export function getCanvasPlane() {
+    return outCanvasPlane;
+}
+
+function createPortalPlane(scene, gl) {
+    //----Create initial circular plane----
+    const radius = 18; 
+    const segments = 32; 
+    const planeGeometry = new THREE.CircleGeometry(radius, segments);
+
+    const portalTexture = textureLoader.load('./textures/portal/portalV2.png');
+    const portalMaterial = new THREE.MeshBasicMaterial({ map: portalTexture, side: THREE.DoubleSide });
+
+
+    const plane = new THREE.Mesh(planeGeometry, portalMaterial);
+    //plane.rotation.x = Math.PI / 2; 
+    plane.receiveShadow = false;
+    plane.position.set(0, 18, 45.2);
+    plane.scale.set(0.6, 0.6, 0.6);
+    plane.name = "portalPlane";
+    plane.visible = true;
+    outPortalPlane = plane;
+    scene.add(plane);
+
+    return new Promise((resolve) => {
+        console.log("...delivering promise...");
+        resolve();
+    });
+}
+
+export function getPortalPlane() {
+    return outPortalPlane;
 }
 
 function createStage(scene) {
@@ -694,16 +753,20 @@ export async function loadObjects(scene, gl) {
     await createCurtainRight(scene);
 
     await createCurtainRope(scene);
+
+    createCanvasPlane(scene, gl);
+
+    createPortalPlane(scene, gl);
     
     await createStage(scene);
 
     await createStageRim(scene);
 
-    await createPiano(scene);
+    //await createPiano(scene);
 
-    await createCello(scene);
+    //await createCello(scene);
 
-    await createVioline(scene);
+    //await createVioline(scene);
 
     console.log("Objects: ");
     console.log("Plane: ", outInstrumentActivationPlane);

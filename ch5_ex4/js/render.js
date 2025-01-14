@@ -6,7 +6,8 @@ import {
     getMouse,
     moveCurtainsFunction,
     moveCameraForward,
-    checkInstrumentsPosition
+    checkInstrumentsPosition,
+    rotatePortal
 } from "./interactions.js";
 
 export function renderLoop(scene, camera, gl) {
@@ -55,7 +56,8 @@ export function renderLoop(scene, camera, gl) {
 
         //Raycaster für Mausinteraktion
         raycaster.setFromCamera(mouse, camera);
-
+        
+        rotatePortal();
         moveCurtainsFunction();
         moveCameraForward();
         checkInstrumentsPosition();

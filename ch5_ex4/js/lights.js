@@ -16,5 +16,5 @@ export async function loadLights(scene) {
     const ambientIntensity = 0.2;
     const ambientLight = new THREE.AmbientLight(ambientColor, ambientIntensity);
     ambientLight.name = "ambientLight";
-    scene.add(ambientLight);
+    //scene.add(ambientLight);
 }

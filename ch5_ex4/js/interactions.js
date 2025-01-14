@@ -1,5 +1,5 @@
 import { getScene, getCamera } from "./app.js";
-import { getCello, getCurtainRope, getCurtainLeft, getCurtainRight, getTheaterRoom, getTheaterChairs, getInstrumentActivationPlane, getPiano, getVioline } from "./loaders.js";
+import { getCello, getCurtainRope, getCurtainLeft, getCurtainRight, getTheaterRoom, getTheaterChairs, getInstrumentActivationPlane, getPiano, getVioline, getPortalPlane } from "./loaders.js";
 import { updateStatus } from "./gui.js";
 
 // ---- Raycaster und Interaktion ----
@@ -23,6 +23,7 @@ let theaterChairs;
 let curtainLeft;
 let curtainRight;
 let curtainRope;
+let portalPlane;
 
 export function getRaycaster() {
     return raycaster;
@@ -64,6 +65,9 @@ export async function setupInteractions(inScene, inCamera, inGl, initTrackballCo
     cello = getCello();
     piano = getPiano();
     violine = getVioline();
+
+    // Initialising portalPlane
+    portalPlane = getPortalPlane();
     /*
     hideTheaterroom();
     enableCameraMovement();
@@ -72,9 +76,9 @@ export async function setupInteractions(inScene, inCamera, inGl, initTrackballCo
 
 let outDragPlane;
 function createDragPlane(scene) {
-    // DragPlane
+    // DragPlane, that triggers the curtain movement
     const dragPlaneGeometry = new THREE.PlaneGeometry(100, 50);
-    const dragPlaneMaterial = new THREE.MeshBasicMaterial({ visible: true, color: 0xFFC0CB });
+    const dragPlaneMaterial = new THREE.MeshBasicMaterial({ visible: false, color: 0xFFC0CB });
     const dragPlane = new THREE.Mesh(dragPlaneGeometry, dragPlaneMaterial);
 
     dragPlane.rotation.x = -Math.PI / 2;
@@ -90,7 +94,7 @@ export function getDragPlane() {
 
 let outLimitPlane;
 function createLimitPlane(scene) {
-    // LimitPlane
+    // LimitPlane, that limits the movement of the cord, so that it can only be moved upwards to a certain amaount
     const limitPlaneGeometry = new THREE.PlaneGeometry(100, 100);
     const limitPlaneMaterial = new THREE.MeshBasicMaterial({ visible: false, color: 0xFFC0CB });
     const limitPlane = new THREE.Mesh(limitPlaneGeometry, limitPlaneMaterial);
@@ -108,9 +112,9 @@ export function getLimitPlane() {
 
 let outInstrumentDragPlane;
 function createInstrumentDragPlane(scene) {
-    // DragPlane
+    // Plane, that the isntruments can be moved on, once they are selected. Added when instrument is selceted, removed once the instrument is let go.
     const instrumentDragPlaneGeometry = new THREE.PlaneGeometry(100, 100);
-    const instrumentDragPlaneMaterial = new THREE.MeshBasicMaterial({ visible: true, color: 0xFFC0CB });
+    const instrumentDragPlaneMaterial = new THREE.MeshBasicMaterial({ visible: false, color: 0xFFC0CB });
     const instrumentDragPlane = new THREE.Mesh(instrumentDragPlaneGeometry, instrumentDragPlaneMaterial);
 
     instrumentDragPlane.rotation.x = -Math.PI / 2;
@@ -266,6 +270,7 @@ function onMouseClick(event) {
             }
         } else {
             // Let go of instrument
+            console.log("Removing outInstrumentDragPlane...");
             removeObjectFromScene(outInstrumentDragPlane);
             mouseMoveSituation = "";
             amountOfClicks = 0;
@@ -281,7 +286,7 @@ function activateSpotlights() {
     spotLight1.position.set(0, 25, 80); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
     spotLight1.castShadow = true;
     console.log("Setting target.")
-    spotLight1.target = cello;
+    spotLight1.target = instrumentActivationPlane;
     console.log("Target set: ", spotLight1.target);
     scene.add(spotLight1);
 }
@@ -293,7 +298,7 @@ function startMovements() {
     // Verzögere die Kamerabewegung um 5 Sekunden
     setTimeout(function() {
         moveCamera = true;  // Starte die Kamerabewegung nach 5 Sekunden
-    }, 2000);
+    }, 5000);
 }
 
 //Function to move the curtains
@@ -364,6 +369,10 @@ function hideTheaterroom() {
     removeObjectFromScene(outDragPlane);
     removeObjectFromScene(outLimitPlane);
     theaterRoomHidden = true;
+}
+
+export function rotatePortal() {
+    portalPlane.rotation.z -= 0.01;
 }
 
 //----Enable camera control by mouse----
