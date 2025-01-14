@@ -1,10 +1,12 @@
 import { getScene, getCamera } from "./app.js";
-import { getCello, getCurtainRope, getCurtainLeft, getCurtainRight, getTheaterRoom, getTheaterChairs, getInstrumentActivationPlane, getPiano, getVioline, getPortalPlane } from "./loaders.js";
+import { getCello, getCurtainRope, getCurtainLeft, getCurtainRight, getTheaterRoom, getTheaterChairs, getInstrumentActivationPlane, getPiano, getVioline, getPortalPlane, getCanvasPlane } from "./loaders.js";
 import { updateStatus } from "./gui.js";
 
 // ---- Raycaster und Interaktion ----
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
+
+//----Global variables----
 var scene;
 var camera;
 var gl;
@@ -17,13 +19,13 @@ var trackballControls;
 var mouseMoveSituation = "";
 var instrumentToMove = null;
 
-
 let theaterRoom;
 let theaterChairs;
 let curtainLeft;
 let curtainRight;
 let curtainRope;
 let portalPlane;
+let canvasPlane;
 
 export function getRaycaster() {
     return raycaster;
@@ -68,6 +70,7 @@ export async function setupInteractions(inScene, inCamera, inGl, initTrackballCo
 
     // Initialising portalPlane
     portalPlane = getPortalPlane();
+    canvasPlane = getCanvasPlane();
     /*
     hideTheaterroom();
     enableCameraMovement();
@@ -302,7 +305,7 @@ function startMovements() {
 }
 
 //Function to move the curtains
-let curtainMovementSpeed = 0.07;
+let curtainMovementSpeed = 0.03;
 let curtainRightEndPosition = 62;
 let curtainLeftEndPosition = -28;
 var cameraInFinalPosition = false;
@@ -320,7 +323,7 @@ export async function moveCurtainsFunction() {
 }
 
 //Function to move camera after Curtain movement
-let cameraMovementSpeed = 0.2;
+let cameraMovementSpeed = 0.07;
 let cameraEndPosition = 45;
 let theaterRoomHidden = false;
 
@@ -339,8 +342,12 @@ export function moveCameraForward() {
         moveCamera = false;  // Stoppe die Bewegung, wenn das Ziel erreicht ist
         moveCurtains = false; // Stoppe die Vorhangbewegung
         cameraInFinalPosition = true;
-        console.log("Calling enableCameraMovement...");
-        enableCameraMovement();
+        console.log("Current camera position: ", camera.position);
+        console.log("Current camera rotation: ", camera.rotation);
+        setTimeout(() => {
+            console.log("Calling enableCameraMovement...");
+            enableCameraMovement();
+        },2000);
     }
 }
 
@@ -354,12 +361,6 @@ function removeObjectFromScene(object) {
 //Hide Theaterroom
 function hideTheaterroom() {
     console.log("Hiding theaterroom...");
-    /*theaterRoom.visible = false;
-    theaterChairs.visible = false;
-    curtainLeft.visible = false;
-    curtainRight.visible = false;
-    curtainRope.visible = false;
-    theaterRoomHidden = true;*/
     removeObjectFromScene(theaterRoom);
     removeObjectFromScene(theaterChairs);
     removeObjectFromScene(curtainLeft);
@@ -368,6 +369,8 @@ function hideTheaterroom() {
     removeObjectFromScene(spotLight1);
     removeObjectFromScene(outDragPlane);
     removeObjectFromScene(outLimitPlane);
+    removeObjectFromScene(portalPlane);
+    removeObjectFromScene(canvasPlane);
     theaterRoomHidden = true;
 }
 
@@ -380,6 +383,8 @@ export function enableCameraMovement() {
     if(!trackballControls) {
         console.log("Enabling CameraMovement")
         trackballControls = initTrackballControls(camera, gl);
+        console.log("Camera position after movement enabled: ", camera.position);
+        console.log("Camera rotation after movement enabled: ", camera.rotation);
         console.log("CameraMovement enabled")
     }
     //console.log("TrackballControls set to: ", trackballControls);
@@ -429,3 +434,6 @@ export function checkInstrumentsPosition() {
     }
 
 }
+
+
+//TODO add Spotlights to the instrumnnts when they are on stage

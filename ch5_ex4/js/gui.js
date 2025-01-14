@@ -1,4 +1,4 @@
-import { playSound, suspendSound, stopSound, muteSound, unmuteSound } from './audio.js';
+import { playSound, suspendSound, stopSound, mutePiano, unmutePiano, muteViolin, unmuteViolin, muteCello, unmuteCello} from './audio.js';
 var controls;
 
 export async function setupGui() {
@@ -39,23 +39,27 @@ export function updateStatus(fieldId, someCondition) {
     if(fieldId === '1') {
         if (!someCondition) {
             controls.textField1 = 'Cello not on Stage';
-            muteSound();
+            muteCello();
         } else {
             controls.textField1 = 'Cello on Stage';
-            unmuteSound();
+            unmuteCello();
         }
     } else if(fieldId === '2') {
         if (!someCondition) {
             controls.textField2 = 'Piano not on Stage';
+            mutePiano();
         } else {
             controls.textField2 = 'Piano on Stage';
+            unmutePiano();
         }
 
     } else if(fieldId === '3') {
         if (!someCondition) {
             controls.textField3 = 'Violine not on Stage';
+            muteViolin();
         } else {
             controls.textField3 = 'Violine on Stage';
+            unmuteViolin();
         }
     }
 }

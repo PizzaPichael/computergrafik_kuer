@@ -762,11 +762,11 @@ export async function loadObjects(scene, gl) {
 
     await createStageRim(scene);
 
-    //await createPiano(scene);
+    await createPiano(scene);
 
-    //await createCello(scene);
+    await createCello(scene);
 
-    //await createVioline(scene);
+    await createVioline(scene);
 
     console.log("Objects: ");
     console.log("Plane: ", outInstrumentActivationPlane);
