@@ -1,5 +1,5 @@
 /**
- * This file contains the functions to load the lights in the scene.
+ *  @fileoverview This file contains the functions to load the lights in the scene.
  */
 import { getInstrumentActivationPlane } from "./loaders.js";
 

@@ -46,6 +46,9 @@ export async function loadObjects(scene) {
     await createPiano(scene);
     await createCello(scene);
     await createVioline(scene);
+    createDragPlane(scene);
+    createLimitPlane(scene);
+
     console.log("Objects: ");
     console.log("Plane: ", outInstrumentActivationPlane);
     console.log("BackgroundSphere: ", outBackgroundSphere);
@@ -59,6 +62,11 @@ export async function loadObjects(scene) {
     console.log("Piano: ", piano);
     console.log("Cello: ", cello);
     console.log("Violine: ", violine);
+    console.log("PlankLeft: ", plankLeft);
+    console.log("PlankRight: ", plankRight);
+    console.log("CanvasPlane: ", outCanvasPlane);
+    console.log("PortalPlane: ", outPortalPlane);
+    console.log("DragPlane: ", outDragPlane);
     console.log("Objects loaded!");
 }
 
@@ -882,6 +890,66 @@ function createVioline(scene) {
     });
 }
 
+/**
+ * Creates the drag plane that is used to trigger the curtain movement.
+ * Once the raycaster intersects with the drag plane, the curtain movement is triggered.
+ * 
+ * @param scene The scene to add the drag plane to.
+ */
+let outDragPlane;
+function createDragPlane(scene) {
+    // DragPlane, that triggers the curtain movement
+    const dragPlaneGeometry = new THREE.PlaneGeometry(100, 50);
+    const dragPlaneMaterial = new THREE.MeshBasicMaterial({ visible: false, color: 0xFFC0CB });
+    const dragPlane = new THREE.Mesh(dragPlaneGeometry, dragPlaneMaterial);
+
+    dragPlane.rotation.x = -Math.PI / 2;
+    dragPlane.position.set(20, 10, 55); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+    dragPlane.name = "dragPlane";
+    outDragPlane = dragPlane;
+    scene.add(dragPlane);
+}
+
+/**
+ * Creates the limit plane that limits the movement of the cord upwards.
+ * 
+ * @param scene The scene to add the limit plane to.
+ */
+let outLimitPlane;
+function createLimitPlane(scene) {
+    // LimitPlane, that limits the movement of the cord, so that it can only be moved upwards to a certain amaount
+    const limitPlaneGeometry = new THREE.PlaneGeometry(100, 100);
+    const limitPlaneMaterial = new THREE.MeshBasicMaterial({ visible: false, color: 0xFFC0CB });
+    const limitPlane = new THREE.Mesh(limitPlaneGeometry, limitPlaneMaterial);
+
+    limitPlane.rotation.x = Math.PI / 2;
+    limitPlane.position.set(20, 25, 55); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+    limitPlane.name = "limitPlane";
+    outLimitPlane = limitPlane;
+    scene.add(limitPlane);
+}
+
+/**
+ * Creates a plane that the instruments can be moved on, once they are selected.
+ * Added when instrument is selceted, removed once the instrument is let go.
+ * The only object whose creation is not called by this file, but by the interactions.js.
+ * 
+ * @param scene The scene to add the plane to.
+ */
+let outInstrumentDragPlane;
+export function createInstrumentDragPlane(scene) {
+    // Plane, that the isntruments can be moved on, once they are selected. Added when instrument is selceted, removed once the instrument is let go.
+    const instrumentDragPlaneGeometry = new THREE.PlaneGeometry(100, 100);
+    const instrumentDragPlaneMaterial = new THREE.MeshBasicMaterial({ visible: false, color: 0xFFC0CB });
+    const instrumentDragPlane = new THREE.Mesh(instrumentDragPlaneGeometry, instrumentDragPlaneMaterial);
+
+    instrumentDragPlane.rotation.x = -Math.PI / 2;
+    instrumentDragPlane.position.set(0, 3, 0); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+    instrumentDragPlane.name = "instrumentDragPlane";
+    outInstrumentDragPlane = instrumentDragPlane;
+    scene.add(instrumentDragPlane);
+}
+
 //----Implementation of getters for all objects----
 
 /**
@@ -1011,4 +1079,28 @@ export function getCello() {
  */
 export function getVioline() {
     return violine;
+}
+
+/**
+ * Getter for the drag plane object.
+ * @returns The drag plane object.
+ */
+export function getDragPlane() {
+    return outDragPlane;
+}
+
+/**
+ * Getter for the limitPlane object.
+ * @returns The limit plane object.
+ */
+export function getLimitPlane() {
+    return outLimitPlane;
+}
+
+/**
+ * Getter for the instrument drag plane object.
+ * @returns The instrument drag plane object.
+ */
+export function getInstrumentDragPlane() {
+    return outInstrumentDragPlane;
 }

@@ -1,5 +1,5 @@
 /**
- * This file is the main entry point of the application.
+ *  @fileoverview This file is the main entry point of the application.
  * Authorship of this and all other .js files is as follows:
  * @author Michael Kaup, s0589545
  */

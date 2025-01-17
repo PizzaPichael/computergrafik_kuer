@@ -1,3 +1,7 @@
+/**
+ * @fileoverview  This file contains the functions for the interactions in the scene.
+ * F.e. moving the camera, moving the curtains, registering instrument selection, etc.
+ */
 import { 
     getCello, 
     getCurtainRope, 
@@ -11,7 +15,11 @@ import {
     getPortalPlane, 
     getCanvasPlane,
     getPlankLeft,
-    getPlankRight 
+    getPlankRight,
+    getDragPlane,
+    getLimitPlane,
+    createInstrumentDragPlane,
+    getInstrumentDragPlane
 } from "./loaders.js";
 
 import { 
@@ -21,22 +29,21 @@ import {
 
 import { setupGui } from "./gui.js";
 
-// ---- Raycaster und Interaktion ----
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-//----Global variables----
-var scene;
-var camera;
-var gl;
-var cello;
-var piano;
-var violine;
-var cord;
-var instrumentActivationPlane;
-var trackballControls;
-var mouseMoveSituation = "";
-var instrumentToMove = null;
+//----Definint global variables----
+let scene;
+let camera;
+let gl;
+let cello;
+let piano;
+let violine;
+let cord;
+let instrumentActivationPlane;
+let trackballControls;
+let mouseMoveSituation = "";
+let instrumentToMove = null;
 
 let theaterRoom;
 let theaterChairs;
@@ -47,6 +54,9 @@ let portalPlane;
 let canvasPlane;
 let plankLeft;
 let plankRight;
+let dragPlane;
+let limitPlane;
+let instrumentDragPlane;
 let initCordYPos;
 
 export function getRaycaster() {
@@ -57,17 +67,23 @@ export function getMouse() {
     return mouse;
 }
 
-//----Setup function----
+/**
+ * Sets up the interactions for the scene.
+ * 
+ * @param inScene The scene to set up the interactions for.
+ * @param inCamera The camera to set up interactions for/with.
+ * @param inGl The WebGLRenderer to set up the interactions for/with.
+ */
 export async function setupInteractions(inScene, inCamera, inGl) {
     scene = inScene;
     camera = inCamera;
     gl = inGl;
 
-    // Event Listener for dragging the curtainrope
+    // Event listener for dragging the curtainrope
     window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mouseup', onMouseUp);
-    createDragPlane(scene);
-    createLimitPlane(scene);
+    dragPlane = getDragPlane();
+    limitPlane = getLimitPlane();
     cord = getCurtainRope();
 
     // Event Listener for moving the instruments
@@ -105,56 +121,6 @@ export async function setupInteractions(inScene, inCamera, inGl) {
     toggleOverlay(true);
     updateOverlayText('Pull the cord to start! Make sure to keep the mouse over the cord while dragging.');
 
-}
-
-let outDragPlane;
-function createDragPlane(scene) {
-    // DragPlane, that triggers the curtain movement
-    const dragPlaneGeometry = new THREE.PlaneGeometry(100, 50);
-    const dragPlaneMaterial = new THREE.MeshBasicMaterial({ visible: false, color: 0xFFC0CB });
-    const dragPlane = new THREE.Mesh(dragPlaneGeometry, dragPlaneMaterial);
-
-    dragPlane.rotation.x = -Math.PI / 2;
-    dragPlane.position.set(20, 10, 55); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-    dragPlane.name = "dragPlane";
-    outDragPlane = dragPlane;
-    scene.add(dragPlane);
-}
-
-export function getDragPlane() {
-    return outDragPlane;
-}
-
-let outLimitPlane;
-function createLimitPlane(scene) {
-    // LimitPlane, that limits the movement of the cord, so that it can only be moved upwards to a certain amaount
-    const limitPlaneGeometry = new THREE.PlaneGeometry(100, 100);
-    const limitPlaneMaterial = new THREE.MeshBasicMaterial({ visible: false, color: 0xFFC0CB });
-    const limitPlane = new THREE.Mesh(limitPlaneGeometry, limitPlaneMaterial);
-
-    limitPlane.rotation.x = Math.PI / 2;
-    limitPlane.position.set(20, 25, 55); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-    limitPlane.name = "limitPlane";
-    outLimitPlane = limitPlane;
-    scene.add(limitPlane);
-}
-
-export function getLimitPlane() {
-    return outLimitPlane;
-}
-
-let outInstrumentDragPlane;
-function createInstrumentDragPlane(scene) {
-    // Plane, that the isntruments can be moved on, once they are selected. Added when instrument is selceted, removed once the instrument is let go.
-    const instrumentDragPlaneGeometry = new THREE.PlaneGeometry(100, 100);
-    const instrumentDragPlaneMaterial = new THREE.MeshBasicMaterial({ visible: false, color: 0xFFC0CB });
-    const instrumentDragPlane = new THREE.Mesh(instrumentDragPlaneGeometry, instrumentDragPlaneMaterial);
-
-    instrumentDragPlane.rotation.x = -Math.PI / 2;
-    instrumentDragPlane.position.set(0, 3, 0); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-    instrumentDragPlane.name = "instrumentDragPlane";
-    outInstrumentDragPlane = instrumentDragPlane;
-    scene.add(instrumentDragPlane);
 }
 
 
@@ -303,8 +269,8 @@ function onMouseClick(event) {
             }
         } else {
             // Let go of instrument
-            console.log("Removing outInstrumentDragPlane...");
-            removeObjectFromScene(outInstrumentDragPlane);
+            instrumentDragPlane = getInstrumentDragPlane();
+            removeObjectFromScene(instrumentDragPlane);
             mouseMoveSituation = "";
             amountOfClicks = 0;
         }
@@ -413,8 +379,8 @@ function hideTheaterroom() {
     removeObjectFromScene(curtainRight);
     removeObjectFromScene(curtainRope);
     removeObjectFromScene(spotLight1);
-    removeObjectFromScene(outDragPlane);
-    removeObjectFromScene(outLimitPlane);
+    removeObjectFromScene(dragPlane);
+    removeObjectFromScene(limitPlane);
     removeObjectFromScene(portalPlane);
     removeObjectFromScene(canvasPlane);
     removeObjectFromScene(plankLeft);
@@ -452,6 +418,7 @@ export async function explainControls(controlType) {
     if(controlType == 'instruments' || controlType == 'all') {
         await updateOverlayText('If you want to mute an instrument, click on it once, move it off stage and click on it again. ', true, 5000);
         await updateOverlayText('To unmute the instrument, bring it back on stage by clicking on it, dragging it on stage and clicking on it again.', true, 6000);
+        await updateOverlayText('Be patient, cello and violine only set in after some 15 seconds or so. :)', true, 4000);
     }
     await updateOverlayText('');
     if(!controlExplanationAdded) {
