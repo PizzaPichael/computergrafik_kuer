@@ -1,7 +1,13 @@
+/**
+ * This file contains the functions to load the lights in the scene.
+ */
 import { getInstrumentActivationPlane } from "./loaders.js";
 
+/**
+ * Load the ambient lights in the scene.
+ * @param scene The scene to add the lights to.
+ */
 export async function loadLights(scene) {   
-    //----Lights-----
     const color = 0xffffff;
     const intensity = .7;
     const light = new THREE.DirectionalLight(color, intensity);
@@ -16,5 +22,5 @@ export async function loadLights(scene) {
     const ambientIntensity = 0.2;
     const ambientLight = new THREE.AmbientLight(ambientColor, ambientIntensity);
     ambientLight.name = "ambientLight";
-    //scene.add(ambientLight);
+    scene.add(ambientLight);
 }
