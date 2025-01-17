@@ -29,6 +29,8 @@ import {
 
 import { setupGui } from "./gui.js";
 
+import { activateSpotlight, getSpotlight } from "./lights.js";
+
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
@@ -57,6 +59,7 @@ let plankRight;
 let dragPlane;
 let limitPlane;
 let instrumentDragPlane;
+let spotLight;
 let initCordYPos;
 
 export function getRaycaster() {
@@ -89,7 +92,7 @@ export async function setupInteractions(inScene, inCamera, inGl) {
     // Event Listener for moving the instruments
     window.addEventListener('click', onMouseClick);
 
-    // Event Listener for both cases
+    // Event Listener used for moving isntruments and dragging the cord
     window.addEventListener('mousemove', onMouseMove);
 
     // Initialising theaterRoom objects
@@ -113,23 +116,31 @@ export async function setupInteractions(inScene, inCamera, inGl) {
     // Initialising planks
     plankLeft = getPlankLeft();
     plankRight = getPlankRight();
-    /*
-    hideTheaterroom();
-    enableCameraMovement();
-    cameraInFinalPosition = true;*/
 
+    // Toggle the textoverlay and isnert the first message
     toggleOverlay(true);
     updateOverlayText('Pull the cord to start! Make sure to keep the mouse over the cord while dragging.');
 
 }
 
-
-// Funktion zum Starten der Kordelbewegung
+//----Initialising global variables, first used in onMouseDown ----
 let cordObject = null;
 let previousCordWorldPointY = null;
 let selectedObject = null;
 let isDragging = false;
 
+/**
+ * Function to handle the mousedown event.
+ * The function gets the mosue coordinates.
+ * If an object is intersected by the raycaster, it saves the world y coordinate of the first intersected object.
+ * This is later used to calculate the difference between the current and the previous world y coordinate of the rope/cord.
+ * If the first interssected object ist the cord object, the object is saved in the cordObject variable.
+ * The selectedObject variable is set to the first intersected object.
+ * The isDragging variable is set to true.
+ * The mouseMoveSituation variable is set to "cord".
+ * 
+ * @param event The mousedown event.
+ */
 function onMouseDown(event) {
     console.log("onMouseDown called");
     const mouse = new THREE.Vector2(
@@ -156,15 +167,21 @@ function onMouseDown(event) {
 
 }
 
-// Funktion zum Abfragen der x- und y-Koordinaten des Raycasters, geschrieben von Copilot
-function getRaycasterCoords(event) {
+/**
+ * Function to get the x and y coordinates of the mouse.
+ * This function has been written by Copilot.
+ * 
+ * @param event The event to get the coordinates from.
+ * @returns The mouse coordinates.
+ */
+function getMouseCoords(event) {
     const mouse = new THREE.Vector2();
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     return mouse;
 }
 
-// Funktion zum Bewegen der Kordel
+//----Initialising global variables, first used in onMouseMove----
 let moveCurtains = false;
 let moveCamera = false;
 let worldCordYDifference = null;
@@ -174,9 +191,24 @@ let previousInstrumentWorldPointX = null;
 let previousInstrumentWorldPointZ = null;
 let instrumentsY = 2.5;
 
-
+/**
+ * Function to handle the mousemove event.
+ * This is used for dragging the cord as well as dragging the instruments.
+ * 
+ * The function gets the mouse coordinates.
+ * If the mouseMoveSituation is "cord", the function checks if the isDragging variable is true.
+ * Otherwise the function returns.
+ * If true, jsut like the {@link onMouseDown} function, the function uses a raycaster to get the cord object.
+ * As long as the cord gets dragged and is the first intersected object, the function calculates the difference
+ * between the current and the previous world y coordinate of the cord.
+ * The cord object gets moved by the difference.
+ * 
+ * When the dragPlane ist reached and becomes the first intersected object:
+ * - the overlay text gets removed
+ * - the spotlights get activated
+ * */
 function onMouseMove(event) {
-    const mouseCoords = getRaycasterCoords(event);
+    const mouseCoords = getMouseCoords(event);
     if(mouseMoveSituation == "cord") {
         if (!isDragging) {
             return;
@@ -203,7 +235,8 @@ function onMouseMove(event) {
             }
             if (firstIntersectedObject.name === "dragPlane" && allIntersectedObjects[1].object.name === "cord") {
                 updateOverlayText(''); // Remove overlay text
-                activateSpotlights();
+                activateSpotlight(scene, instrumentActivationPlane);
+                spotLight = getSpotlight();
                 setTimeout(startMovements(), 2000);
                 //console.log("moveCurtains set by dragPlane contact", moveCurtains);
                 //Hier Event einfügen
@@ -277,18 +310,7 @@ function onMouseClick(event) {
     }
 }
 
-// Activate theaterroom spotlights
-var spotLight1 = null;
 
-function activateSpotlights() { 
-    spotLight1 = new THREE.SpotLight(0xffffff, 1, 100, Math.PI / 6, 0.5, 2);
-    spotLight1.position.set(0, 25, 80); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-    spotLight1.castShadow = true;
-    console.log("Setting target.")
-    spotLight1.target = instrumentActivationPlane;
-    console.log("Target set: ", spotLight1.target);
-    scene.add(spotLight1);
-}
 
 //Start movements
 function startMovements() {
@@ -378,7 +400,7 @@ function hideTheaterroom() {
     removeObjectFromScene(curtainLeft);
     removeObjectFromScene(curtainRight);
     removeObjectFromScene(curtainRope);
-    removeObjectFromScene(spotLight1);
+    removeObjectFromScene(spotLight);
     removeObjectFromScene(dragPlane);
     removeObjectFromScene(limitPlane);
     removeObjectFromScene(portalPlane);
