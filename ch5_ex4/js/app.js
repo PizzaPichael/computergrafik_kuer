@@ -67,6 +67,7 @@ async function main() {
     scene.background = new THREE.Color(0.3, 0.5, 0.8);   //0.3, 0.5, 0.8         0x000000
     const tripod = new THREE.AxesHelper(50);
     tripod.name = "tripod";
+    tripod.visible = false;
     scene.add(tripod);
 
     outScene = scene;

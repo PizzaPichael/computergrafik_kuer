@@ -85,7 +85,7 @@ async function createTheaterRoom(scene) {
             theaterRoomTexture.wrapT = THREE.RepeatWrapping;
             theaterRoomTexture.repeat.set(2, 2);
 
-            const theaterRoomNormalMap = textureLoader.load('./textures/red_brick/red_brick_disp_4k.jpg');
+            const theaterRoomNormalMap = textureLoader.load('./textures/red_brick/red_brick_disp_4k.png');
             theaterRoomNormalMap.wrapS = THREE.RepeatWrapping;
             theaterRoomNormalMap.wrapT = THREE.RepeatWrapping;
             theaterRoomNormalMap.repeat.set(2, 2);
@@ -136,6 +136,8 @@ let stageRim;
 let piano;
 let cello;
 let violine;
+let plankLeft;
+let plankRight;
 
 function createTheaterChairs(scene) {
     return new Promise((resolve, reject) => {
@@ -362,6 +364,122 @@ export function getCurtainRope() {
     return curtainRope;
 }
 
+function createWoodenPlankLeft(scene) {
+    return new Promise((resolve, reject) => {
+        try {
+            const baseColorTexture = textureLoader.load('./textures/woodenplank/DefaultMaterial_baseColor.jpeg');
+            const metallicRoughnessTexture = textureLoader.load('./textures/woodenplank/DefaultMaterial_metallicRoughness.png');
+            const normalMapTexture = textureLoader.load('./textures/woodenplank/DefaultMaterial_normal.png');
+
+            const material = new THREE.MeshStandardMaterial({
+                map: baseColorTexture,
+                metalnessMap: metallicRoughnessTexture,
+                roughnessMap: metallicRoughnessTexture,
+                normalMap: normalMapTexture,
+            });
+
+            objectLoader.load(
+                'objects/woodenplank/plank.obj',
+                function (mesh) {
+                    
+
+                    mesh.traverse(function (child) {
+                        if (child.isMesh) {
+                            child.material = material;
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            child.userData.selectable = false;
+                        }
+                    });
+
+                    mesh.position.set(-29, 10, 52);    //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    mesh.rotation.set(0, Math.PI / 2, Math.PI / 2);
+                    mesh.scale.set(20, 10, 15);
+                    mesh.name = "plankleft";
+                    plankLeft = mesh;
+
+                    scene.add(mesh);
+
+                    resolve(mesh);
+                },
+                function (xhr) {
+                    console.log("chairs " + (xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.error('An error happened', error);
+                    reject(error);
+                }
+            );
+        } catch (error) {
+            console.error("Error in createTheaterRoom:", error);
+            reject(error);
+        }
+    });
+}
+
+
+export function getPlankLeft() {
+    return plankLeft;
+}
+
+function createWoodenPlankRight(scene) {
+    return new Promise((resolve, reject) => {
+        try {
+            const baseColorTexture = textureLoader.load('./textures/woodenplank/DefaultMaterial_baseColor.jpeg');
+            const metallicRoughnessTexture = textureLoader.load('./textures/woodenplank/DefaultMaterial_metallicRoughness.png');
+            const normalMapTexture = textureLoader.load('./textures/woodenplank/DefaultMaterial_normal.png');
+
+            const material = new THREE.MeshStandardMaterial({
+                map: baseColorTexture,
+                metalnessMap: metallicRoughnessTexture,
+                roughnessMap: metallicRoughnessTexture,
+                normalMap: normalMapTexture,
+            });
+
+            objectLoader.load(
+                'objects/woodenplank/plank.obj',
+                function (mesh) {
+                    
+
+                    mesh.traverse(function (child) {
+                        if (child.isMesh) {
+                            child.material = material;
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            child.userData.selectable = false;
+                        }
+                    });
+
+                    mesh.position.set(29, 10, 52);    //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
+                    mesh.rotation.set(0, Math.PI / 2, Math.PI / 2);
+                    mesh.scale.set(20, 10, 15);
+                    mesh.name = "plankright";
+                    plankRight = mesh;
+
+                    scene.add(mesh);
+
+                    resolve(mesh);
+                },
+                function (xhr) {
+                    console.log("chairs " + (xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.error('An error happened', error);
+                    reject(error);
+                }
+            );
+        } catch (error) {
+            console.error("Error in createTheaterRoom:", error);
+            reject(error);
+        }
+    });
+}
+
+
+export function getPlankRight() {
+    return plankRight;
+}
+
 function createCanvasPlane(scene, gl) {
     //----Create initial circular plane----
     const canvasGeometry = new THREE.PlaneGeometry(50, 25);
@@ -449,6 +567,8 @@ function createStage(scene) {
                     mesh.position.set(-18.7, -2.5, 0);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
                     mesh.rotation.set(-Math.PI / 2, 0, 0);
                     mesh.scale.set(500, 500, 250);
+                    mesh.castShadow = true;
+                    mesh.receiveShadow = true;
                     mesh.name = "stage";
                     stage = mesh;
 
@@ -538,7 +658,7 @@ function createPiano(scene) {
             pianoNormalMap.wrapS = THREE.RepeatWrapping;
             pianoNormalMap.wrapT = THREE.RepeatWrapping;
 
-            objectLoader.load('objects/piano/uploads_files_4987684_Piano.obj',
+            objectLoader.load('objects/piano/uploads_files_4987684_Piano_low.obj',
                 function (mesh) {
                     var material = new THREE.MeshPhongMaterial({ map: pianoTexture, normalMap: pianoNormalMap });
 
@@ -563,8 +683,17 @@ function createPiano(scene) {
                         }
                     });
 
+                    mesh.position.set(1.3, 2.5, -10); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)  
+                    mesh.rotation.set(0, -100, 0);
+                    mesh.scale.set(0.06, 0.06, 0.06);
+                    mesh.name = "piano";
+                    mesh.userData.selectable = true;
+                    piano = mesh;
+
+                    scene.add(mesh);
+
                     // Erstelle ein neues Mesh mit der kombinierten Geometrie
-                    var combinedMesh = new THREE.Mesh(combinedGeometry, material);  
+                    /*var combinedMesh = new THREE.Mesh(combinedGeometry, material);  
                     combinedMesh.position.set(1.3, 2.5, -10); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)  
                     combinedMesh.rotation.set(0, -100, 0);
                     combinedMesh.scale.set(0.06, 0.06, 0.06);
@@ -572,7 +701,7 @@ function createPiano(scene) {
                     combinedMesh.userData.selectable = true;
                     piano = combinedMesh;
 
-                    scene.add(combinedMesh);
+                    scene.add(combinedMesh);*/
 
                     resolve();
                 },
@@ -753,6 +882,10 @@ export async function loadObjects(scene, gl) {
     await createCurtainRight(scene);
 
     await createCurtainRope(scene);
+    
+    await createWoodenPlankLeft(scene);
+
+    await createWoodenPlankRight(scene);
 
     createCanvasPlane(scene, gl);
 

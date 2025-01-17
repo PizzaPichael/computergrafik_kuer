@@ -1,6 +1,20 @@
 import { getScene, getCamera } from "./app.js";
-import { getCello, getCurtainRope, getCurtainLeft, getCurtainRight, getTheaterRoom, getTheaterChairs, getInstrumentActivationPlane, getPiano, getVioline, getPortalPlane, getCanvasPlane } from "./loaders.js";
-import { updateStatus } from "./gui.js";
+import { 
+    getCello, 
+    getCurtainRope, 
+    getCurtainLeft, 
+    getCurtainRight, 
+    getTheaterRoom, 
+    getTheaterChairs, 
+    getInstrumentActivationPlane, 
+    getPiano, 
+    getVioline, 
+    getPortalPlane, 
+    getCanvasPlane,
+    getPlankLeft,
+    getPlankRight 
+} from "./loaders.js";
+import { updateStatus, addControlExplanation } from "./gui.js";
 
 // ---- Raycaster und Interaktion ----
 const raycaster = new THREE.Raycaster();
@@ -26,6 +40,9 @@ let curtainRight;
 let curtainRope;
 let portalPlane;
 let canvasPlane;
+let plankLeft;
+let plankRight;
+let initCordYPos;
 
 export function getRaycaster() {
     return raycaster;
@@ -36,11 +53,10 @@ export function getMouse() {
 }
 
 //----Setup function----
-export async function setupInteractions(inScene, inCamera, inGl, initTrackballControls) {
+export async function setupInteractions(inScene, inCamera, inGl) {
     scene = inScene;
     camera = inCamera;
     gl = inGl;
-    trackballControls = initTrackballControls;
 
     // Event Listener for dragging the curtainrope
     window.addEventListener('mousedown', onMouseDown);
@@ -61,6 +77,7 @@ export async function setupInteractions(inScene, inCamera, inGl, initTrackballCo
     curtainLeft = getCurtainLeft();
     curtainRight = getCurtainRight();
     curtainRope = getCurtainRope();
+    initCordYPos = curtainRope.position.y;
 
     // Initialising instrumentActivationPlane
     instrumentActivationPlane = getInstrumentActivationPlane();
@@ -71,10 +88,18 @@ export async function setupInteractions(inScene, inCamera, inGl, initTrackballCo
     // Initialising portalPlane
     portalPlane = getPortalPlane();
     canvasPlane = getCanvasPlane();
+
+    // Initialising planks
+    plankLeft = getPlankLeft();
+    plankRight = getPlankRight();
     /*
     hideTheaterroom();
     enableCameraMovement();
     cameraInFinalPosition = true;*/
+
+    toggleOverlay(true);
+    updateOverlayText('Pull the cord to start! Make sure to keep the mouse over the cord while dragging.');
+
 }
 
 let outDragPlane;
@@ -135,6 +160,7 @@ let selectedObject = null;
 let isDragging = false;
 
 function onMouseDown(event) {
+    console.log("onMouseDown called");
     const mouse = new THREE.Vector2(
         (event.clientX / window.innerWidth) * 2 - 1,
         -(event.clientY / window.innerHeight) * 2 + 1
@@ -205,6 +231,7 @@ function onMouseMove(event) {
                 previousCordWorldPointY = wordlPointY;
             }
             if (firstIntersectedObject.name === "dragPlane" && allIntersectedObjects[1].object.name === "cord") {
+                updateOverlayText(''); // Remove overlay text
                 activateSpotlights();
                 setTimeout(startMovements(), 2000);
                 //console.log("moveCurtains set by dragPlane contact", moveCurtains);
@@ -235,10 +262,8 @@ function onMouseMove(event) {
 function onMouseUp(event) {
     //TODO fix the cord reset
     if (!isDragging || !selectedObject) return;
-
-    if (lastCordY != cordObject.position.y) {
+    if (initCordYPos != cordObject.position.y) {
         mouseMoveSituation = "";
-        console.log("Ressetting cord position to ", cordObject.position.y);
         cordObject.position.y = initCordYPos;
     }
 
@@ -323,11 +348,11 @@ export async function moveCurtainsFunction() {
 }
 
 //Function to move camera after Curtain movement
-let cameraMovementSpeed = 0.07;
+let cameraMovementSpeed = 0.2;
 let cameraEndPosition = 45;
 let theaterRoomHidden = false;
 
-export function moveCameraForward() {
+export async function moveCameraForward() {
     if(cameraInFinalPosition && !theaterRoomHidden) {
         console.log("Calling hideTheaterroom...");
         hideTheaterroom();
@@ -342,12 +367,28 @@ export function moveCameraForward() {
         moveCamera = false;  // Stoppe die Bewegung, wenn das Ziel erreicht ist
         moveCurtains = false; // Stoppe die Vorhangbewegung
         cameraInFinalPosition = true;
-        console.log("Current camera position: ", camera.position);
-        console.log("Current camera rotation: ", camera.rotation);
-        setTimeout(() => {
-            console.log("Calling enableCameraMovement...");
-            enableCameraMovement();
-        },2000);
+        panCameraToZero();
+        if(cameraPanned) {
+            console.log("Current camera position: ", camera.position);
+            console.log("Current camera rotation: ", camera.rotation);
+            setTimeout(() => {
+                console.log("Calling enableCameraMovement...");
+                enableCameraMovement();
+            },2000);
+        }
+    }
+}
+
+let cameraPanned = false;
+export function panCameraToZero() {
+    if(cameraInFinalPosition && !cameraPanned) {
+        let angleToAchieve =-0.38050637711236873;
+        camera.rotation.x = angleToAchieve;
+        while(camera.rotation.x > angleToAchieve) {
+            camera.rotation.x -= 0.001;
+            setTimeout(() => {
+            }, 500);       }
+        cameraPanned = true; 
     }
 }
 
@@ -371,6 +412,8 @@ function hideTheaterroom() {
     removeObjectFromScene(outLimitPlane);
     removeObjectFromScene(portalPlane);
     removeObjectFromScene(canvasPlane);
+    removeObjectFromScene(plankLeft);
+    removeObjectFromScene(plankRight);
     theaterRoomHidden = true;
 }
 
@@ -383,11 +426,33 @@ export function enableCameraMovement() {
     if(!trackballControls) {
         console.log("Enabling CameraMovement")
         trackballControls = initTrackballControls(camera, gl);
-        console.log("Camera position after movement enabled: ", camera.position);
-        console.log("Camera rotation after movement enabled: ", camera.rotation);
-        console.log("CameraMovement enabled")
+        console.log("Camera rotation after enabling movement: ", camera.rotation);        
+        explainControls('all');
     }
-    //console.log("TrackballControls set to: ", trackballControls);
+    
+}
+
+let controlExplanationAdded = false;
+export async function explainControls(controlType) {
+    console.log("Explaining controls...");
+    if(controlType == 'mouse' || controlType == 'all') {
+        await updateOverlayText('You can now move the camera by clicking and dragging the mouse.', true, 4000);
+        await updateOverlayText('You can also zoom in and out by scrolling the mouse wheel.', true, 4000);
+    } 
+    if(controlType == 'music' || controlType == 'all') {
+        await updateOverlayText('Please enable your computers sound.', true, 4000);
+        await updateOverlayText('You can start playing music by selecting the "Play Music" button in the upper right controls.', true, 5000);
+        await updateOverlayText('If you wish to pause or stop the music entirely, you can do that with the "Pause Music" and "Stop Music" buttons in the upper right controls.', true, 6000);
+    } 
+    if(controlType == 'instruments' || controlType == 'all') {
+        await updateOverlayText('If you want to mute an instrument, click on it once, move it off stage and click on it again. ', true, 5000);
+        await updateOverlayText('To unmute the instrument, bring it back on stage by clicking on it, dragging it on stage and clicking on it again.', true, 6000);
+    }
+    await updateOverlayText('');
+    if(!controlExplanationAdded) {
+        addControlExplanation();
+        controlExplanationAdded = true;
+    }
 }
 
 export function getTrackBallControls() {
@@ -435,5 +500,38 @@ export function checkInstrumentsPosition() {
 
 }
 
+function updateOverlayText(text, delay=false, delaytime=0) {
+    console.log("Updating overlay text: ", text);
+    return new Promise((resolve, reject) => {
+        try {
+            const overlay = document.getElementById('overlay');
+            if (overlay) {
+                if(!delay) {
+                    overlay.textContent = text;
+                    resolve();
+                } else if(delay){
+                    overlay.textContent = text;
+                    setTimeout(() => {
+                        resolve();
+                    }, delaytime);
+                }
+            } else {
+                reject("Overlay element not found");
+            }
+        } catch (error) {
+            console.error("Error in updateOverlayText:", error);
+            reject(error);
+        }
+    });
+}
+
+// Funktion zum Ein- und Ausblenden des Overlays
+function toggleOverlay(visible) {
+    const overlay = document.getElementById('overlay');
+    if (overlay) {
+        overlay.style.display = visible ? 'block' : 'none';
+    }
+    console.log("Overlay toggled: ", overlay.style.display);
+}
 
 //TODO add Spotlights to the instrumnnts when they are on stage

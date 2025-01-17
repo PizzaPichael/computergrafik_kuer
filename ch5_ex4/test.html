@@ -20,11 +20,22 @@
             height: 100vh;
             display: block;
         }
+        /*General overlay structure provided by Copilot*/
+        #overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 40px;
+            z-index: 100;
+        }
     </style>
     <title>Restructure Test</title>
 </head>
 <body>
     <canvas id="c"></canvas>
+    <div id="overlay"></div>
 </body>
 <script type="module" src="./js/app.js"></script>
 </html>

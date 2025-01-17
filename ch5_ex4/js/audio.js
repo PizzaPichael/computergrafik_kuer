@@ -10,6 +10,7 @@ export function setupAudio(camera) {
     //----Music----
     // create an AudioListener and add it to the camera
     piano_listener = new THREE.AudioListener();
+    console.log("Camera position: ", camera.position);
     camera.add(piano_listener);
 
     audioLoader = new THREE.AudioLoader();
@@ -19,7 +20,7 @@ export function setupAudio(camera) {
     audioLoader.load('./music/stems/14_Piano.mp3', function (buffer) {
         piano_sound.setBuffer(buffer);
         piano_sound.setLoop(false);
-        piano_sound.setVolume(0.5);
+        piano_sound.setVolume(1);
     });
 
 
@@ -30,7 +31,7 @@ export function setupAudio(camera) {
     audioLoader.load('./music/stems/17_Violin.mp3', function (buffer) {
         violin_sound.setBuffer(buffer);
         violin_sound.setLoop(false);
-        violin_sound.setVolume(0.5);
+        violin_sound.setVolume(1);
     });
 
     cello_listener = new THREE.AudioListener();
@@ -40,7 +41,7 @@ export function setupAudio(camera) {
     audioLoader.load('./music/stems/23_Cello.mp3', function (buffer) {
         cello_sound.setBuffer(buffer);
         cello_sound.setLoop(false);
-        cello_sound.setVolume(0.5);
+        cello_sound.setVolume(1);
     });
 }
 
@@ -91,7 +92,7 @@ export function mutePiano() {
 
 export function unmutePiano() {
     console.log("Unmuting piano...");
-    piano_sound.setVolume(0.5);
+    piano_sound.setVolume(1);
 }
 
 export function muteViolin() {
@@ -101,7 +102,7 @@ export function muteViolin() {
 
 export function unmuteViolin() {
     console.log("Unmuting violin...");
-    violin_sound.setVolume(0.5);
+    violin_sound.setVolume(1);
 }
 
 export function muteCello() {
@@ -111,5 +112,7 @@ export function muteCello() {
 
 export function unmuteCello() { 
     console.log("Unmuting cello...");
-    cello_sound.setVolume(0.5);
+    cello_sound.setVolume(1);
 }
+
+//TODO Umgebungsgeräusche die raus faden, wenn die Kordel gezogen wird

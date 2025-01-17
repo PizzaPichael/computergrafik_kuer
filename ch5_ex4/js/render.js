@@ -7,7 +7,8 @@ import {
     moveCurtainsFunction,
     moveCameraForward,
     checkInstrumentsPosition,
-    rotatePortal
+    rotatePortal,
+    panCameraToZero
 } from "./interactions.js";
 
 export function renderLoop(scene, camera, gl) {
