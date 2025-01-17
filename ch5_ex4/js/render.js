@@ -49,9 +49,7 @@ export function renderLoop(scene, camera, gl) {
         return needResize;
     }
 
-    let raycaster = getRaycaster();
     let trackballControls;
-    let mouse = getMouse();
 
     /**
      * The draw function that is called in a loop.
@@ -87,7 +85,6 @@ export function renderLoop(scene, camera, gl) {
             camera.updateProjectionMatrix();
         }
 
-        raycaster.setFromCamera(mouse, camera);
         
         rotatePortal();
         moveCurtainsFunction();
