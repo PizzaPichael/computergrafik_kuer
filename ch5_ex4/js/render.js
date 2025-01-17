@@ -1,3 +1,7 @@
+/**
+ * This file contains the render loop for the scene.
+ */
+
 import { 
     enableCameraMovement, 
     getTrackBallControls, 
@@ -7,18 +11,33 @@ import {
     moveCurtainsFunction,
     moveCameraForward,
     checkInstrumentsPosition,
-    rotatePortal,
-    panCameraToZero
+    rotatePortal
 } from "./interactions.js";
 
+/**
+ * Function to loop through the rendering of the scene.
+ * 
+ * The function is called in the {@link app.js} file.
+ * The function is responsible for rendering the scene and updating the camera.
+ * The function contains the functions {@link resizeGLToDisplaySize} and {@link draw}.
+ * 
+ * The function is mostly taken from the exercise we did.
+ * 
+ * @param scene The scene to be rendered.
+ * @param camera The camera to be updated.
+ * @param gl The renderer to render the scene.
+ */
 export function renderLoop(scene, camera, gl) {
-    //----Add the stats----
     var stats = initStats();
-
-    //----Enable clock for later use of getElapsedTime() or similar----
     var clock = new THREE.Clock();
 
-    //----Update resize----
+    /**
+     * Function to resize the canvas to the display size.
+     * The function is called in the draw function.
+     * 
+     * @param gl The renderer to resize.
+     * @returns A boolean value indicating if the canvas needs to be resized.
+     */
     function resizeGLToDisplaySize(gl) {
         const canvas = gl.domElement;
         const width = canvas.clientWidth;
@@ -30,18 +49,31 @@ export function renderLoop(scene, camera, gl) {
         return needResize;
     }
 
-    //enableCameraMovement();
     let raycaster = getRaycaster();
     let trackballControls;
     let mouse = getMouse();
 
-    //----Draw----
+    /**
+     * The draw function that is called in a loop.
+     * The function is responsible for rendering the scene and updating
+     * the aspectratio of the camera as well as its projection matrix.
+     * 
+     * The function also updates the trackball controls and the stats
+     * 
+     * The fucntion continously calls the functions 
+     * {@link updateTrackBallControls},
+     * {@link rotatePortal}, 
+     * {@link moveCurtainsFunction}, 
+     * {@link moveCameraForward}, 
+     * {@link checkInstrumentsPosition},
+     * {@link render} function of the renderer,
+     * {@link requestAnimationFrame} function using itself as parameter.
+     * 
+     * @param time The time in milliseconds. 
+     */
     function draw(time){
         time *= 0.001;
-        //enableCameraMovement();
-        //setTimeout(enableCameraMovement, 10000); // Enable camera movement after X milliseconds (1s = 1000ms)
         trackballControls = getTrackBallControls();
-        //console.log("TrackballControls: ", trackballControls);
 
         if(trackballControls) {
             updateTrackBallControls(clock.getDelta());
@@ -55,7 +87,6 @@ export function renderLoop(scene, camera, gl) {
             camera.updateProjectionMatrix();
         }
 
-        //Raycaster für Mausinteraktion
         raycaster.setFromCamera(mouse, camera);
         
         rotatePortal();
