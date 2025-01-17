@@ -5,6 +5,11 @@
  * The addition of promises to it to enable asynchronous creation has been proposed by ChatGPT.
  * It also gave an exmaple of how to add the promis efunctionality.
  * This example has been edited to cater to the needs of the program.
+ * 
+ * The functions for basic geometries and planes have also been adopted from the exercise.
+ * 
+ * links(-)/rechts(+), oben/unten, vorne(+)/hinten(-) have been added throuhgout the functions 
+ * to make it easier to understand the positioning of the objects.
  */
 var textureLoader;
 var objectLoader;
@@ -77,12 +82,11 @@ let plankRight;
 
 //----Implementations of functions to load all objects----
 /**
- * Creates a plane, that the isntruments have to be placed on to be unmuted.
+ * Creates a plane, that the instruments have to be placed on to be unmuted.
  * 
  * @param scene The scene to add the plane to. 
  */
 function createPlaneForInstrumentActivation(scene) {
-    //Plane is used to spot if instrument is on stage or not
     const radius = 18; 
     const segments = 32; 
     const planeGeometry = new THREE.CircleGeometry(radius, segments);
@@ -131,8 +135,8 @@ async function createBackgroundSphere(scene) {
 
     const sphere = new THREE.Mesh(geometry, material);
     sphere.userData.selectable = false;     //Custom variable, to decide which objects can be selected and which can not be selected
-    sphere.name = "backgroundSphere";
-    outBackgroundSphere = sphere;
+    sphere.name = "backgroundSphere";   //Naming the object appropriately for identification purposes
+    outBackgroundSphere = sphere;   //Saving the object in a global variable for reference
     scene.add(sphere);
 }
 
@@ -159,7 +163,6 @@ async function createTheaterRoom(scene) {
             theaterRoomNormalMap.repeat.set(2, 2);
 
             const roomMaterial = new THREE.MeshPhongMaterial({
-                //color: 'purple',
                 map: theaterRoomTexture,
                 normalMap: theaterRoomNormalMap,
                 side: THREE.BackSide
@@ -215,7 +218,6 @@ function createTheaterChairs(scene) {
 
                     scene.add(mesh);
 
-                    // TheaterChairs wurde erfolgreich erstellt und hinzugefügt
                     resolve(mesh);
                 },
                 function (xhr) {
@@ -242,12 +244,10 @@ function createTheaterChairs(scene) {
 function createCurtainLeft(scene) {
     return new Promise((resolve, reject) => {
         try {
-            //----Curtaintexture----
             const curtainTexture = textureLoader.load('./textures/curtain/leather_red_03_coll1_4k.png');
             curtainTexture.wrapS = THREE.RepeatWrapping;
             curtainTexture.wrapT = THREE.RepeatWrapping;
             
-            //----Curtain left----
             objectLoader.load('objects/curtain/curtain_closed.obj',
                 function (mesh) {
                     var material = new THREE.MeshPhongMaterial({ map: curtainTexture });
@@ -295,12 +295,10 @@ function createCurtainLeft(scene) {
 function createCurtainRight(scene) {
     return new Promise((resolve, reject) => {
         try {
-            //----Curtaintexture----
             const curtainTexture = textureLoader.load('./textures/curtain/leather_red_03_coll1_4k.png');
             curtainTexture.wrapS = THREE.RepeatWrapping;
             curtainTexture.wrapT = THREE.RepeatWrapping;
 
-            //----Curtain right----
             objectLoader.load('objects/curtain/curtain_closed.obj',
                 function (mesh) {
                     var material = new THREE.MeshPhongMaterial({ map: curtainTexture });
@@ -322,7 +320,6 @@ function createCurtainRight(scene) {
                     
                     scene.add(mesh);
                     
-                    // Auflösung des Promises
                     resolve();
                 },
                 function (xhr) {
@@ -344,6 +341,12 @@ function createCurtainRight(scene) {
 
 /**
  * Creates the curtain rope in the theater room.
+ * A combined geometry was needed to combine the different parts of the rope and create a single object.
+ * As later on, the raycaster lists all the objects that are intersected by the ray,
+ * the combined geometry was needed to ensure that the rope is treated as a single object and
+ * shown as the first intersected object.
+ * 
+ * This solution was proposed by Copilot.
  * 
  * @param scene Scene to add the curtain to 
  * @returns A promise to ensure that the curtain rope is loaded before it is used.
@@ -351,18 +354,15 @@ function createCurtainRight(scene) {
 function createCurtainRope(scene) {
     return new Promise((resolve, reject) => {
         try {
-            //----Curtain rope----
             const curtainRopeTexture = textureLoader.load('./textures/holz_hellbraun.jpg');
             curtainRopeTexture.wrapS = THREE.RepeatWrapping;
             curtainRopeTexture.wrapT = THREE.RepeatWrapping;
             
             objectLoader.load('objects/rope/elongated_rope.obj', function (mesh) {
                 var material = new THREE.MeshPhongMaterial({ map: curtainRopeTexture });
-
-                // Eine neue leere Geometrie für das kombinierte Mesh
+                //A combined geometry 
                 var combinedGeometry = new THREE.BufferGeometry();
 
-                // Traverse durch alle Mesh-Kinder und füge ihre Geometrien zusammen
                 mesh.traverse(function (child) {
                     if (child.isMesh) {
                         child.material = material;
@@ -370,32 +370,28 @@ function createCurtainRope(scene) {
                         child.receiveShadow = true;
                         child.userData.selectable = true;
                         
-                        // Geometrie des aktuellen Meshes zum combinedGeometry hinzufügen
+                        // If the geometry is empty, add the geometry of the first mesh
                         if (combinedGeometry.attributes.position === undefined) {
-                            // Falls die Geometrie leer ist, füge die Geometrie des ersten Meshes hinzu
                             combinedGeometry = child.geometry.clone();
-                        } else {
-                            // Wenn bereits Geometrie vorhanden ist, kombiniere sie
+                        } 
+                        // If geometry already exists, combine it
+                        else {
                             combinedGeometry.merge(child.geometry, child.matrix);
                         }
                     }
                 });
 
-                // Erstelle ein neues Mesh mit der kombinierten Geometrie
+                // Create a new mesh with the combined geometry
                 var combinedMesh = new THREE.Mesh(combinedGeometry, material);
-                combinedMesh.position.set(15, 10, 50);  // Position des gesamten Objekts
-                combinedMesh.rotation.set(0, 0, 0);    // Rotation des gesamten Objekts
-                combinedMesh.scale.set(0.2, 0.2, 0.2); // Skalierung des gesamten Objekts
-                combinedMesh.name = "cord";             // Name des Objekts
+                combinedMesh.position.set(15, 10, 50);  
+                combinedMesh.rotation.set(0, 0, 0);    
+                combinedMesh.scale.set(0.2, 0.2, 0.2); 
+                combinedMesh.name = "cord";             
                 combinedMesh.userData.isCord = true;
-
-                // Füge das kombinierte Mesh der Szene hinzu
-                scene.add(combinedMesh);
-
-                // Das ursprüngliche Mesh (der Parent) wird nicht mehr benötigt
                 curtainRope = combinedMesh;
 
-                // Auflösung des Promises
+                scene.add(combinedMesh);
+
                 resolve();
             },
                 function (xhr) {
@@ -536,15 +532,12 @@ function createWoodenPlankRight(scene) {
  * @param scene The scene to add the canvas plane to.
  */
 function createCanvasPlane(scene) {
-    //----Create initial circular plane----
     const canvasGeometry = new THREE.PlaneGeometry(50, 25);
 
     const canvasTexture = textureLoader.load('./textures/leinwand/leinwand.png');
     const canvasMaterial = new THREE.MeshBasicMaterial({ map: canvasTexture, side: THREE.DoubleSide });
     
-
     const plane = new THREE.Mesh(canvasGeometry, canvasMaterial);
-    //plane.rotation.x = Math.PI / 2; 
     plane.receiveShadow = false;
     plane.position.set(0, 18, 45.1); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
     plane.name = "canvasPlane";
@@ -559,7 +552,6 @@ function createCanvasPlane(scene) {
  * @param scene The scene to add the portal plane to.
  */
 function createPortalPlane(scene) {
-    //----Create initial circular plane----
     const radius = 18; 
     const segments = 32; 
     const planeGeometry = new THREE.CircleGeometry(radius, segments);
@@ -569,7 +561,6 @@ function createPortalPlane(scene) {
     
 
     const plane = new THREE.Mesh(planeGeometry, portalMaterial);
-    //plane.rotation.x = Math.PI / 2; 
     plane.receiveShadow = false;
     plane.position.set(0, 18, 45.2);
     plane.scale.set(0.6, 0.6, 0.6);
@@ -588,7 +579,6 @@ function createPortalPlane(scene) {
 function createStage(scene) {
     return new Promise((resolve, reject) => {
         try {
-            //----Stage----
             const stageTexture = textureLoader.load('./textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
             stageTexture.wrapS = THREE.RepeatWrapping;
             stageTexture.wrapT = THREE.RepeatWrapping;
@@ -622,7 +612,6 @@ function createStage(scene) {
 
                     scene.add(mesh);
 
-                    // Auflösung des Promises
                     resolve();
                 },
                 function (xhr) {
@@ -649,7 +638,6 @@ function createStage(scene) {
 function createStageRim(scene) {
     return new Promise((resolve, reject) => {
         try {
-            //----Stagerim----
             const stageRimTexture = textureLoader.load('./textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
             stageRimTexture.wrapS = THREE.RepeatWrapping;
             stageRimTexture.wrapT = THREE.RepeatWrapping;
@@ -694,6 +682,8 @@ function createStageRim(scene) {
 
 /**
  * Creates the piano that is used in the scene.
+ * This object also needed a combined mesh. 
+ * For further details please refer to description of {@link createCurtainRope}.
  * 
  * @param scene The scene to add the piano to. 
  * @returns A promise to ensure that the piano is loaded before it is used. 
@@ -701,7 +691,6 @@ function createStageRim(scene) {
 function createPiano(scene) {
     return new Promise((resolve, reject) => {
         try {
-            //----Piano----
             const pianoTexture = textureLoader.load('./textures/piano/new/main_Albedo.png');
             pianoTexture.wrapS = THREE.RepeatWrapping;
             pianoTexture.wrapT = THREE.RepeatWrapping;
@@ -714,23 +703,33 @@ function createPiano(scene) {
                 function (mesh) {
                     var material = new THREE.MeshPhongMaterial({ map: pianoTexture, normalMap: pianoNormalMap });
 
+                    var combinedGeometry = new THREE.BufferGeometry();
+
                     mesh.traverse(function (child) {
                         if (child.isMesh) {
                             child.material = material;
                             child.castShadow = true;
                             child.receiveShadow = true;
                             child.userData.selectable = true;
+
+                            if (combinedGeometry.attributes.position === undefined) {
+                                combinedGeometry = child.geometry.clone();
+                            } else {
+                                combinedGeometry.merge(child.geometry, child.matrix);
+                            }
                         }
                     });
 
-                    mesh.position.set(1.3, 2.5, -10); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)  
-                    mesh.rotation.set(0, -100, 0);
-                    mesh.scale.set(0.06, 0.06, 0.06);
-                    mesh.name = "piano";
-                    mesh.userData.selectable = true;
+                    var combinedMesh = new THREE.Mesh(combinedGeometry, material);  
+                    
+                    combinedMesh.position.set(1.3, 2.5, -10); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)  
+                    combinedMesh.rotation.set(0, -100, 0);
+                    combinedMesh.scale.set(0.06, 0.06, 0.06);
+                    combinedMesh.name = "piano";
+                    combinedMesh.userData.selectable = true;
                     piano = mesh;
 
-                    scene.add(mesh);
+                    scene.add(combinedMesh);
 
                     resolve();
                 },
@@ -751,6 +750,8 @@ function createPiano(scene) {
 
 /**
  * Creates the cello that is used in the scene.
+ * This object also needed a combined mesh. 
+ * For further details please refer to description of {@link createCurtainRope}.
  * 
  * @param scene The scene to add the cello to. 
  * @returns A promise to ensure that the cello is loaded before it is used. 
@@ -771,7 +772,6 @@ function createCello(scene) {
                 function (mesh) {
                     var material = new THREE.MeshPhongMaterial({ map: celloTexture });
                     
-                    // Eine neue leere Geometrie für das kombinierte Mesh
                     var combinedGeometry = new THREE.BufferGeometry();
 
                     mesh.traverse(function (child) {
@@ -781,21 +781,17 @@ function createCello(scene) {
                             child.receiveShadow = true;
                             child.userData.selectable = true;
 
-                            // Geometrie des aktuellen Meshes zum combinedGeometry hinzufügen
                             if (combinedGeometry.attributes.position === undefined) {
-                                // Falls die Geometrie leer ist, füge die Geometrie des ersten Meshes hinzu
                                 combinedGeometry = child.geometry.clone();
                             } else {
-                                // Wenn bereits Geometrie vorhanden ist, kombiniere sie
                                 combinedGeometry.merge(child.geometry, child.matrix);
                             }
                         }
                     });
 
-                    // Erstelle ein neues Mesh mit der kombinierten Geometrie
                     var combinedMesh = new THREE.Mesh(combinedGeometry, material);  
                     combinedMesh.position.set(-10.7, 2.5, 5); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-                    combinedMesh.rotation.set(350, 0, 0); //300 = 90°
+                    combinedMesh.rotation.set(350, 0, 0); 
                     combinedMesh.scale.set(0.015, 0.015, 0.015);
                     combinedMesh.name = "cello";
                     combinedMesh.userData.selectable = true;
@@ -822,6 +818,8 @@ function createCello(scene) {
 
 /**
  * Creates the violine that is used in the scene.
+ * This object also needed a combined mesh.
+ * For further details please refer to description of {@link createCurtainRope}.
  * 
  * @param scene The scene to add the violine to.
  * @returns A promise to ensure that the violine is loaded before it is used.
@@ -829,7 +827,6 @@ function createCello(scene) {
 function createVioline(scene) {
     return new Promise((resolve, reject) => {
         try {
-            //----Violine----
             const violineTexture = textureLoader.load('./textures/violine/ViolinHomeWork_TD_Checker_Diffuse.png');
             violineTexture.wrapS = THREE.RepeatWrapping;
             violineTexture.wrapT = THREE.RepeatWrapping;
@@ -842,7 +839,6 @@ function createVioline(scene) {
                 function (mesh) {
                     var material = new THREE.MeshPhongMaterial({ map: violineTexture, normalMap: violineNormalMap });
 
-                    // Eine neue leere Geometrie für das kombinierte Mesh
                     var combinedGeometry = new THREE.BufferGeometry();
 
                     mesh.traverse(function (child) {
@@ -852,21 +848,17 @@ function createVioline(scene) {
                             child.receiveShadow = true;
                             child.userData.selectable = true;
                             
-                            // Geometrie des aktuellen Meshes zum combinedGeometry hinzufügen
                             if (combinedGeometry.attributes.position === undefined) {
-                                // Falls die Geometrie leer ist, füge die Geometrie des ersten Meshes hinzu
                                 combinedGeometry = child.geometry.clone();
                             } else {
-                                // Wenn bereits Geometrie vorhanden ist, kombiniere sie
                                 combinedGeometry.merge(child.geometry, child.matrix);
                             }
                         }
                     });
 
-                    // Erstelle ein neues Mesh mit der kombinierten Geometrie
                     var combinedMesh = new THREE.Mesh(combinedGeometry, material);
                     combinedMesh.position.set(10, 2.5, 5); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
-                    combinedMesh.rotation.set(0, -2.356, 0.175); //300 = 90°
+                    combinedMesh.rotation.set(0, -2.356, 0.175);
                     combinedMesh.scale.set(0.015, 0.015, 0.015);
                     combinedMesh.name = "violine";
                     combinedMesh.userData.selectable = true;
