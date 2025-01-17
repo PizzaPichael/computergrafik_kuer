@@ -1,5 +1,5 @@
 /**
- * This file contains all the functions to load the objects for the scene.
+ *  @fileoverview This file contains all the functions to load the objects for the scene.
  * 
  * The function for loading the objects is mainly the same as in the exercise.
  * The addition of promises to it to enable asynchronous creation has been proposed by ChatGPT.
@@ -727,7 +727,7 @@ function createPiano(scene) {
                     combinedMesh.scale.set(0.06, 0.06, 0.06);
                     combinedMesh.name = "piano";
                     combinedMesh.userData.selectable = true;
-                    piano = mesh;
+                    piano = combinedMesh;
 
                     scene.add(combinedMesh);
 
