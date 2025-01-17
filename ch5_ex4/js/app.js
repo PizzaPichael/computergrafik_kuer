@@ -1,3 +1,8 @@
+/**
+ * This file is the main entry point of the application.
+ * Authorship of this and all other .js files is as follows:
+ * @author Michael Kaup, s0589545
+ */
 import { loadObjects } from './loaders.js';
 import { setupInteractions } from './interactions.js';
 import { setupAudio } from './audio.js';
@@ -5,34 +10,23 @@ import { setupGui } from './gui.js';
 import { renderLoop } from './render.js';
 import { loadLights } from './lights.js';
 
-
-var outCanvas;
-var outGL;
-var outCamera;
-var outScene;
-
 main();
 
-export function getCanvas() {
-    return outCanvas;
-}  
-
-export function getGL() {
-    return outGL;
-}
-
-export function getCamera() {
-    return outCamera;
-}
-
-export function getScene() {
-    return outScene;
-}
-
-
+/**
+ * Main function
+ * 
+ * This function is the main entry point of the application.
+ * It sets up the context, camera and scene.
+ * This is almost exactly the same as in the exercise.
+ * 
+ * Then, it sets up all the other .js files.
+ * Certain setup functions are async.
+ * This should prevent objects not being loaded when they are called.
+ */
 async function main() {
     console.log("Starting main function...");
     console.log("Creating context");
+
     //----Create context/renderer----
     const canvas = document.querySelector("#c");
     const gl = new THREE.WebGLRenderer({
@@ -41,9 +35,6 @@ async function main() {
     });
     gl.shadowMap.enabled = true;
 
-    outCanvas = canvas;
-
-    console.log("Setting up camera");
     //----Create camera----
     const angleOfView = 55;
     const aspectRatio = canvas.clientWidth / canvas.clientHeight;
@@ -59,9 +50,6 @@ async function main() {
     camera.position.set(0, 18, initCameraPosZ); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
     camera.rotation.x = THREE.Math.degToRad(-10); // Set the pitch (in degrees)
 
-    outCamera = camera;
-
-    console.log("Setting up scene");
     //----Create scene----
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0.3, 0.5, 0.8);   //0.3, 0.5, 0.8         0x000000
@@ -70,24 +58,13 @@ async function main() {
     tripod.visible = false;
     scene.add(tripod);
 
-    outScene = scene;
-
-    console.log("Main: Loading objects");
-    // Objekte laden
+    //----Setting up remaining .js files----
     await loadObjects(scene, gl);
-
-    // Licht laden
     await loadLights(scene);
-
-    // Interaktionen hinzufügen
     await setupInteractions(scene, camera, gl);
-
-    // Audio hinzufügen
     setupAudio(camera);
+    //await setupGui();
 
-    // GUI hinzufügen
-    await setupGui();
-
-    // Render-Schleife starten
+    //----Start render loop----
     renderLoop(scene, camera, gl);
 }

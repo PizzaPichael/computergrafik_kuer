@@ -1,4 +1,3 @@
-import { getScene, getCamera } from "./app.js";
 import { 
     getCello, 
     getCurtainRope, 
@@ -14,7 +13,13 @@ import {
     getPlankLeft,
     getPlankRight 
 } from "./loaders.js";
-import { updateStatus, addControlExplanation } from "./gui.js";
+
+import { 
+    updateStatus, 
+    addControlExplanation 
+} from "./gui.js";
+
+import { setupGui } from "./gui.js";
 
 // ---- Raycaster und Interaktion ----
 const raycaster = new THREE.Raycaster();
@@ -360,7 +365,6 @@ export async function moveCameraForward() {
 
     if (!moveCamera) return;
     
-    // Berechne die Differenz zwischen der aktuellen und der Zielposition
     if (camera.position.z > cameraEndPosition) {
         camera.position.z -= cameraMovementSpeed;
     } else {
@@ -368,6 +372,7 @@ export async function moveCameraForward() {
         moveCurtains = false; // Stoppe die Vorhangbewegung
         cameraInFinalPosition = true;
         panCameraToZero();
+        setupGui();
         if(cameraPanned) {
             console.log("Current camera position: ", camera.position);
             console.log("Current camera rotation: ", camera.rotation);

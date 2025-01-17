@@ -1,8 +1,87 @@
+/**
+ * This file contains all the functions to load the objects for the scene.
+ * 
+ * The function for loading the objects is mainly the same as in the exercise.
+ * The addition of promises to it to enable asynchronous creation has been proposed by ChatGPT.
+ * It also gave an exmaple of how to add the promis efunctionality.
+ * This example has been edited to cater to the needs of the program.
+ */
 var textureLoader;
 var objectLoader;
 
-let outInstrumentActivationPlane;
-function createPlaneForInstrumentActivation(scene, gl) {
+/**
+ * Sets up and loads all objects for the scene.
+ * 
+ * Most objects are a bit larger and take time to load, 
+ * so async is used to ensure that the objects are loaded before they can be called.
+ * Outputs all the objects in the console after they are loaded for debugging purposes.
+ * 
+ * @param scene The scene to add the objects to.
+ */
+export async function loadObjects(scene) {
+    console.log("Loaders: Loading objects...");
+
+    textureLoader = new THREE.TextureLoader();
+    objectLoader = new THREE.OBJLoader();
+
+    //----Create Objects in the Scene----
+    createPlaneForInstrumentActivation(scene);
+    await createBackgroundSphere(scene);
+    await createTheaterRoom(scene);
+    await createTheaterChairs(scene);
+    await createCurtainLeft(scene);
+    await createCurtainRight(scene);
+    await createCurtainRope(scene);
+    await createWoodenPlankLeft(scene);
+    await createWoodenPlankRight(scene);
+    createCanvasPlane(scene);
+    createPortalPlane(scene);
+    await createStage(scene);
+    await createStageRim(scene);
+    await createPiano(scene);
+    await createCello(scene);
+    await createVioline(scene);
+    console.log("Objects: ");
+    console.log("Plane: ", outInstrumentActivationPlane);
+    console.log("BackgroundSphere: ", outBackgroundSphere);
+    console.log("TheaterRoom: ", outTheaterRoom);
+    console.log("TheaterChairs: ", theaterChairs);
+    console.log("CurtainLeft: ", curtainLeft);
+    console.log("CurtainRight: ", curtainRight);
+    console.log("CurtainRope: ", curtainRope);
+    console.log("Stage: ", stage);
+    console.log("StageRim: ", stageRim);
+    console.log("Piano: ", piano);
+    console.log("Cello: ", cello);
+    console.log("Violine: ", violine);
+    console.log("Objects loaded!");
+}
+
+//----Variables for all the objects to be saved in for reference----
+let outInstrumentActivationPlane; 
+let outBackgroundSphere;
+let outTheaterRoom;
+let theaterChairs;
+let curtainLeft;
+let curtainRight;
+let curtainRope;
+let outCanvasPlane;
+let outPortalPlane;
+let stage;
+let stageRim;
+let piano;
+let cello;
+let violine;
+let plankLeft;
+let plankRight;
+
+//----Implementations of functions to load all objects----
+/**
+ * Creates a plane, that the isntruments have to be placed on to be unmuted.
+ * 
+ * @param scene The scene to add the plane to. 
+ */
+function createPlaneForInstrumentActivation(scene) {
     //Plane is used to spot if instrument is on stage or not
     const radius = 18; 
     const segments = 32; 
@@ -18,18 +97,13 @@ function createPlaneForInstrumentActivation(scene, gl) {
     plane.visible = false;
     outInstrumentActivationPlane = plane;
     scene.add(plane);
-
-    return new Promise((resolve) => {
-        console.log("...delivering promise...");
-        resolve();
-    });
 }
 
-export function getInstrumentActivationPlane() {
-    return outInstrumentActivationPlane;
-}
-
-let outBackgroundSphere;
+/**
+ * Creates the BackgroundSphere that is used as a background for the scene.
+ * As the texture image is a bit larger, it is loaded as a promise 
+ * to ensure that it is loaded before it is used.
+ */
 async function createBackgroundSphere(scene) {
     console.log("Spehre function: starting");
 
@@ -49,31 +123,25 @@ async function createBackgroundSphere(scene) {
         );
     });
 
-    console.log("Sphere: creating geometry");
-
     const geometry = new THREE.SphereGeometry(500, 60, 40);
     const material = new THREE.MeshBasicMaterial({
         map: texture,
-        side: THREE.BackSide,
+        side: THREE.BackSide,   //Place texture on the inside of the sphere
     });
 
     const sphere = new THREE.Mesh(geometry, material);
-    console.log("Sphere: created sphere ", sphere);
-    sphere.userData.selectable = false;
+    sphere.userData.selectable = false;     //Custom variable, to decide which objects can be selected and which can not be selected
     sphere.name = "backgroundSphere";
-
-    console.log("Created sphere for background: ", sphere);
-
-    // Setze die Kugel als Hintergrund
     outBackgroundSphere = sphere;
     scene.add(sphere);
 }
 
-export function getBackgroundSphere() {
-    return outBackgroundSphere;
-}
-
-let outTheaterRoom;
+/**
+ * Creates a cube with breick texture on the inside that is used as the theaterrom.
+ * 
+ * @param scene The scene to add the theater room to.
+ * @returns a promise to ensure that the theater room is loaded before it is used.
+ */
 async function createTheaterRoom(scene) {
     return new Promise((resolve, reject) => {
         try {
@@ -112,33 +180,12 @@ async function createTheaterRoom(scene) {
     });
 }
 
-export function getTheaterRoom() {
-    return outTheaterRoom;
-}
-
-let outFog
-function createFog(scene) {
-    const fog = new THREE.Fog("grey", 0, 200);
-    outFog = fog;
-    scene.fog = fog;
-    scene.fog = null;
-}
-
-//----Define all other scene objects----
-let theaterChairs;
-let curtainLeft;
-let curtainRight;
-let curtainRope;
-let outCanvasPlane;
-let outPortalPlane;
-let stage;
-let stageRim;
-let piano;
-let cello;
-let violine;
-let plankLeft;
-let plankRight;
-
+/**
+ * Creates the theater chairs that are used in the theater room.
+ * 
+ * @param scene The scene to add the theater chairs to. 
+ * @returns a promise to ensure that the theater chairs are loaded before they are used.
+ */
 function createTheaterChairs(scene) {
     return new Promise((resolve, reject) => {
         try {
@@ -186,11 +233,12 @@ function createTheaterChairs(scene) {
     });
 }
 
-
-export function getTheaterChairs() {
-    return theaterChairs;
-}
-
+/**
+ * Creates the left curtain in the theater room.
+ * 
+ * @param scene Scene to add the curtain to 
+ * @returns A promise to ensure that the curtain is loaded before it is used. 
+ */
 function createCurtainLeft(scene) {
     return new Promise((resolve, reject) => {
         try {
@@ -198,7 +246,7 @@ function createCurtainLeft(scene) {
             const curtainTexture = textureLoader.load('./textures/curtain/leather_red_03_coll1_4k.png');
             curtainTexture.wrapS = THREE.RepeatWrapping;
             curtainTexture.wrapT = THREE.RepeatWrapping;
-
+            
             //----Curtain left----
             objectLoader.load('objects/curtain/curtain_closed.obj',
                 function (mesh) {
@@ -218,7 +266,7 @@ function createCurtainLeft(scene) {
                     mesh.scale.set(0.3, 0.3, 0.3);
                     mesh.name = "curtainLeft";
                     curtainLeft = mesh;
-
+                    
                     scene.add(mesh);
                     resolve(mesh);
                 },
@@ -238,6 +286,12 @@ function createCurtainLeft(scene) {
     });
 }
 
+/**
+ * Creates the right curtain in the theater room.
+ * 
+ * @param scene The scene to add the curtain to
+ * @returns A promise to ensure that the curtain is loaded before it is used.
+ */
 function createCurtainRight(scene) {
     return new Promise((resolve, reject) => {
         try {
@@ -265,9 +319,9 @@ function createCurtainRight(scene) {
                     mesh.scale.set(0.3, 0.3, 0.3);
                     mesh.name = "curtainRight";
                     curtainRight = mesh;
-
+                    
                     scene.add(mesh);
-
+                    
                     // Auflösung des Promises
                     resolve();
                 },
@@ -288,14 +342,12 @@ function createCurtainRight(scene) {
 
 }
 
-export function getCurtainLeft() {
-    return curtainLeft; 
-}
-
-export function getCurtainRight() {
-    return curtainRight;
-}
-
+/**
+ * Creates the curtain rope in the theater room.
+ * 
+ * @param scene Scene to add the curtain to 
+ * @returns A promise to ensure that the curtain rope is loaded before it is used.
+ */
 function createCurtainRope(scene) {
     return new Promise((resolve, reject) => {
         try {
@@ -303,7 +355,7 @@ function createCurtainRope(scene) {
             const curtainRopeTexture = textureLoader.load('./textures/holz_hellbraun.jpg');
             curtainRopeTexture.wrapS = THREE.RepeatWrapping;
             curtainRopeTexture.wrapT = THREE.RepeatWrapping;
-
+            
             objectLoader.load('objects/rope/elongated_rope.obj', function (mesh) {
                 var material = new THREE.MeshPhongMaterial({ map: curtainRopeTexture });
 
@@ -317,7 +369,7 @@ function createCurtainRope(scene) {
                         child.castShadow = true;
                         child.receiveShadow = true;
                         child.userData.selectable = true;
-
+                        
                         // Geometrie des aktuellen Meshes zum combinedGeometry hinzufügen
                         if (combinedGeometry.attributes.position === undefined) {
                             // Falls die Geometrie leer ist, füge die Geometrie des ersten Meshes hinzu
@@ -353,24 +405,26 @@ function createCurtainRope(scene) {
                     console.log(error);
                     console.log('An error happened');
                 });
-        } catch (error) {
+            } catch (error) {
             console.error("Error in createTheaterRoom:", error);
             reject(error);
         }
     });
 }
 
-export function getCurtainRope() {
-    return curtainRope;
-}
-
+/**
+ * Creates the left plank in the theater room, to hide the left curtain clipping through the room wall.
+ * 
+ * @param scene The scene to add the left plank to. 
+ * @returns A promise to ensure that the left plank is loaded before it is used.
+ */
 function createWoodenPlankLeft(scene) {
     return new Promise((resolve, reject) => {
         try {
             const baseColorTexture = textureLoader.load('./textures/woodenplank/DefaultMaterial_baseColor.jpeg');
             const metallicRoughnessTexture = textureLoader.load('./textures/woodenplank/DefaultMaterial_metallicRoughness.png');
             const normalMapTexture = textureLoader.load('./textures/woodenplank/DefaultMaterial_normal.png');
-
+            
             const material = new THREE.MeshStandardMaterial({
                 map: baseColorTexture,
                 metalnessMap: metallicRoughnessTexture,
@@ -417,11 +471,12 @@ function createWoodenPlankLeft(scene) {
     });
 }
 
-
-export function getPlankLeft() {
-    return plankLeft;
-}
-
+/**
+ * Creates the right plank in the theater room, to hide the right curtain clipping through the room wall.
+ * 
+ * @param scene The scene to add the right plank to. 
+ * @returns A promise to ensure that the right plank is loaded before it is used.
+ */
 function createWoodenPlankRight(scene) {
     return new Promise((resolve, reject) => {
         try {
@@ -475,18 +530,18 @@ function createWoodenPlankRight(scene) {
     });
 }
 
-
-export function getPlankRight() {
-    return plankRight;
-}
-
-function createCanvasPlane(scene, gl) {
+/**
+ * Creates the canvas plane that is used as a canvas for the portal.
+ * 
+ * @param scene The scene to add the canvas plane to.
+ */
+function createCanvasPlane(scene) {
     //----Create initial circular plane----
     const canvasGeometry = new THREE.PlaneGeometry(50, 25);
 
     const canvasTexture = textureLoader.load('./textures/leinwand/leinwand.png');
     const canvasMaterial = new THREE.MeshBasicMaterial({ map: canvasTexture, side: THREE.DoubleSide });
-
+    
 
     const plane = new THREE.Mesh(canvasGeometry, canvasMaterial);
     //plane.rotation.x = Math.PI / 2; 
@@ -496,18 +551,14 @@ function createCanvasPlane(scene, gl) {
     plane.visible = true;
     outCanvasPlane = plane;
     scene.add(plane);
-
-    return new Promise((resolve) => {
-        console.log("...delivering promise...");
-        resolve();
-    });
 }
 
-export function getCanvasPlane() {
-    return outCanvasPlane;
-}
-
-function createPortalPlane(scene, gl) {
+/**
+ * Creates the portal plane that is used as a portal in the scene.
+ * 
+ * @param scene The scene to add the portal plane to.
+ */
+function createPortalPlane(scene) {
     //----Create initial circular plane----
     const radius = 18; 
     const segments = 32; 
@@ -515,7 +566,7 @@ function createPortalPlane(scene, gl) {
 
     const portalTexture = textureLoader.load('./textures/portal/portalV2.png');
     const portalMaterial = new THREE.MeshBasicMaterial({ map: portalTexture, side: THREE.DoubleSide });
-
+    
 
     const plane = new THREE.Mesh(planeGeometry, portalMaterial);
     //plane.rotation.x = Math.PI / 2; 
@@ -526,17 +577,14 @@ function createPortalPlane(scene, gl) {
     plane.visible = true;
     outPortalPlane = plane;
     scene.add(plane);
-
-    return new Promise((resolve) => {
-        console.log("...delivering promise...");
-        resolve();
-    });
 }
 
-export function getPortalPlane() {
-    return outPortalPlane;
-}
-
+/**
+ * Creates the stage on which the instruments stand on.
+ * 
+ * @param scene The scene to add the stage to. 
+ * @returns A promise to ensure that the stage is loaded before it is used. 
+ */
 function createStage(scene) {
     return new Promise((resolve, reject) => {
         try {
@@ -545,7 +593,7 @@ function createStage(scene) {
             stageTexture.wrapS = THREE.RepeatWrapping;
             stageTexture.wrapT = THREE.RepeatWrapping;
             stageTexture.repeat.set(10, 10)
-
+            
             const stageNormalMap = textureLoader.load('./textures/wood_cabinet/wood_planks_normal.png');
             stageNormalMap.wrapS = THREE.RepeatWrapping;
             stageNormalMap.wrapT = THREE.RepeatWrapping;
@@ -563,7 +611,7 @@ function createStage(scene) {
                             child.userData.selectable = false;
                         }
                     });
-
+                    
                     mesh.position.set(-18.7, -2.5, 0);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
                     mesh.rotation.set(-Math.PI / 2, 0, 0);
                     mesh.scale.set(500, 500, 250);
@@ -592,18 +640,20 @@ function createStage(scene) {
     });
 }
 
-export function getStage() {
-    return stage;
-}
-
-function createStageRim(scene, gl) {
+/**
+ * Creates the stage rim that is used as a rim for the stage.
+ * 
+ * @param scene The scene to add the stage rim to. 
+ * @returns A promise to ensure that the stage rim is loaded before it is used.
+ */
+function createStageRim(scene) {
     return new Promise((resolve, reject) => {
         try {
             //----Stagerim----
             const stageRimTexture = textureLoader.load('./textures/wood_cabinet/wood_cabinet_worn_long_diff_4k.jpg');
             stageRimTexture.wrapS = THREE.RepeatWrapping;
             stageRimTexture.wrapT = THREE.RepeatWrapping;
-
+            
             objectLoader.load('objects/stageRimFullCircle38_5.obj',
                 function (mesh) {
                     var material = new THREE.MeshPhongMaterial({ map: stageRimTexture });
@@ -616,7 +666,7 @@ function createStageRim(scene, gl) {
                             child.userData.selectable = false;
                         }
                     });
-
+                    
                     mesh.position.set(-18.7, -2.5, 0);   //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)
                     mesh.rotation.set(-Math.PI / 2, 0, 0);
                     mesh.scale.set(500, 500, 250);
@@ -642,10 +692,12 @@ function createStageRim(scene, gl) {
     });
 }
 
-export function getStageRim() {
-    return stageRim;
-}
-
+/**
+ * Creates the piano that is used in the scene.
+ * 
+ * @param scene The scene to add the piano to. 
+ * @returns A promise to ensure that the piano is loaded before it is used. 
+ */
 function createPiano(scene) {
     return new Promise((resolve, reject) => {
         try {
@@ -657,13 +709,10 @@ function createPiano(scene) {
             const pianoNormalMap = textureLoader.load('./textures/piano/new/main_Normal.png');
             pianoNormalMap.wrapS = THREE.RepeatWrapping;
             pianoNormalMap.wrapT = THREE.RepeatWrapping;
-
+            
             objectLoader.load('objects/piano/uploads_files_4987684_Piano_low.obj',
                 function (mesh) {
                     var material = new THREE.MeshPhongMaterial({ map: pianoTexture, normalMap: pianoNormalMap });
-
-                    // Eine neue leere Geometrie für das kombinierte Mesh
-                    var combinedGeometry = new THREE.BufferGeometry();
 
                     mesh.traverse(function (child) {
                         if (child.isMesh) {
@@ -671,15 +720,6 @@ function createPiano(scene) {
                             child.castShadow = true;
                             child.receiveShadow = true;
                             child.userData.selectable = true;
-
-                            // Geometrie des aktuellen Meshes zum combinedGeometry hinzufügen
-                            if (combinedGeometry.attributes.position === undefined) {
-                                // Falls die Geometrie leer ist, füge die Geometrie des ersten Meshes hinzu
-                                combinedGeometry = child.geometry.clone();
-                            } else {
-                                // Wenn bereits Geometrie vorhanden ist, kombiniere sie
-                                combinedGeometry.merge(child.geometry, child.matrix);
-                            }
                         }
                     });
 
@@ -691,17 +731,6 @@ function createPiano(scene) {
                     piano = mesh;
 
                     scene.add(mesh);
-
-                    // Erstelle ein neues Mesh mit der kombinierten Geometrie
-                    /*var combinedMesh = new THREE.Mesh(combinedGeometry, material);  
-                    combinedMesh.position.set(1.3, 2.5, -10); //links(-)/rechts(+), oben/unten, vorne(+)/hinten(-)  
-                    combinedMesh.rotation.set(0, -100, 0);
-                    combinedMesh.scale.set(0.06, 0.06, 0.06);
-                    combinedMesh.name = "piano";
-                    combinedMesh.userData.selectable = true;
-                    piano = combinedMesh;
-
-                    scene.add(combinedMesh);*/
 
                     resolve();
                 },
@@ -720,10 +749,12 @@ function createPiano(scene) {
     });
 }
 
-export function getPiano() {
-    return piano;
-}
-
+/**
+ * Creates the cello that is used in the scene.
+ * 
+ * @param scene The scene to add the cello to. 
+ * @returns A promise to ensure that the cello is loaded before it is used. 
+ */
 function createCello(scene) {
     return new Promise((resolve, reject) => {
         try {
@@ -739,7 +770,7 @@ function createCello(scene) {
             objectLoader.load('objects/cello/10372_Cello_v01_l3.obj',
                 function (mesh) {
                     var material = new THREE.MeshPhongMaterial({ map: celloTexture });
-
+                    
                     // Eine neue leere Geometrie für das kombinierte Mesh
                     var combinedGeometry = new THREE.BufferGeometry();
 
@@ -789,10 +820,12 @@ function createCello(scene) {
     });
 }
 
-export function getCello() {
-    return cello;
-}
-
+/**
+ * Creates the violine that is used in the scene.
+ * 
+ * @param scene The scene to add the violine to.
+ * @returns A promise to ensure that the violine is loaded before it is used.
+ */
 function createVioline(scene) {
     return new Promise((resolve, reject) => {
         try {
@@ -800,11 +833,11 @@ function createVioline(scene) {
             const violineTexture = textureLoader.load('./textures/violine/ViolinHomeWork_TD_Checker_Diffuse.png');
             violineTexture.wrapS = THREE.RepeatWrapping;
             violineTexture.wrapT = THREE.RepeatWrapping;
-
+            
             const violineNormalMap = textureLoader.load('./textures/violine/ViolinHomeWork_TD_Checker_Normal.png');
             violineNormalMap.wrapS = THREE.RepeatWrapping;
             violineNormalMap.wrapT = THREE.RepeatWrapping;
-
+            
             objectLoader.load('objects/violine/V2.obj',
                 function (mesh) {
                     var material = new THREE.MeshPhongMaterial({ map: violineTexture, normalMap: violineNormalMap });
@@ -818,7 +851,7 @@ function createVioline(scene) {
                             child.castShadow = true;
                             child.receiveShadow = true;
                             child.userData.selectable = true;
-
+                            
                             // Geometrie des aktuellen Meshes zum combinedGeometry hinzufügen
                             if (combinedGeometry.attributes.position === undefined) {
                                 // Falls die Geometrie leer ist, füge die Geometrie des ersten Meshes hinzu
@@ -857,64 +890,133 @@ function createVioline(scene) {
     });
 }
 
-export function getVioline() {
-    return violine;
+//----Implementation of getters for all objects----
+
+/**
+ * Getter for the plane for instrument activation.
+ * 
+ * @returns The plane for instrument activation.
+*/
+export function getInstrumentActivationPlane() {
+    return outInstrumentActivationPlane;
 }
 
-export async function loadObjects(scene, gl) {
-    console.log("Loaders: Loading objects...");
+/**
+ * Getter for the background sphere.
+ * @returns The background sphere.
+ */
+export function getBackgroundSphere() {
+    return outBackgroundSphere;
+}
 
-    textureLoader = new THREE.TextureLoader();
-    objectLoader = new THREE.OBJLoader();
-    //----Create Objects in the Scene----
-    await createPlaneForInstrumentActivation(scene, gl);
+/**
+ * Getter for the theater room.
+ * @returns The theater room.
+ */
+export function getTheaterRoom() {
+    return outTheaterRoom;
+}
 
-    await createBackgroundSphere(scene);
-    
-    await createTheaterRoom(scene);
+/**
+ * Getter for the theater chairs.
+ * @returns The theater chairs.
+ */
+export function getTheaterChairs() {
+    return theaterChairs;
+}
 
-    createFog(scene);
+/**
+ * Getter for the left curtain.
+ * @returns the left curtain object.
+ */
+export function getCurtainLeft() {
+    return curtainLeft; 
+}
 
-    await createTheaterChairs(scene);
+/**
+ * Getter for the right curtain.
+ * @returns the right curtain.
+ */
+export function getCurtainRight() {
+    return curtainRight;
+}
 
-    await createCurtainLeft(scene);
+/**
+ * Getter for the curtain rope object.
+ * @returns The curtain rope object
+ */
+export function getCurtainRope() {
+    return curtainRope;
+}
 
-    await createCurtainRight(scene);
+/**
+ * Getter for the left plank in the theater room.
+ * @returns The left plank in the theater room.
+ */
+export function getPlankLeft() {
+    return plankLeft;
+}
 
-    await createCurtainRope(scene);
-    
-    await createWoodenPlankLeft(scene);
+/**
+ * Getter for the right plank in the theater room.
+ * @returns The right plank in the theater room.
+ */
+export function getPlankRight() {
+    return plankRight;
+}
 
-    await createWoodenPlankRight(scene);
+/**
+ * Getter for the canvas plane.
+ * @returns The canvas plane.
+ */
+export function getCanvasPlane() {
+    return outCanvasPlane;
+}
 
-    createCanvasPlane(scene, gl);
+/**
+ * Getter for the portal plane.
+ * 
+ * @returns The portal plane.
+ */
+export function getPortalPlane() {
+    return outPortalPlane;
+}
 
-    createPortalPlane(scene, gl);
-    
-    await createStage(scene);
+/**
+ * Getter for the stage object.
+ * @returns The stage object.
+ */
+export function getStage() {
+    return stage;
+}
+/**
+ * Getter for the stage rim object.
+ * @returns The stage rim object.
+ */
+export function getStageRim() {
+    return stageRim;
+}
 
-    await createStageRim(scene);
+/**
+ * Getter for the piano object.
+ * @returns The piano object.
+ */
+export function getPiano() {
+    return piano;
+}
 
-    await createPiano(scene);
+/**
+ * Getter for the cello object.
+ * @returns The cello object.
+ */
+export function getCello() {
+    return cello;
+}
 
-    await createCello(scene);
-
-    await createVioline(scene);
-
-    console.log("Objects: ");
-    console.log("Plane: ", outInstrumentActivationPlane);
-    console.log("BackgroundSphere: ", outBackgroundSphere);
-    console.log("TheaterRoom: ", outTheaterRoom);
-    console.log("Fog: ", outFog);
-    console.log("TheaterChairs: ", theaterChairs);
-    console.log("CurtainLeft: ", curtainLeft);
-    console.log("CurtainRight: ", curtainRight);
-    console.log("CurtainRope: ", curtainRope);
-    console.log("Stage: ", stage);
-    console.log("StageRim: ", stageRim);
-    console.log("Piano: ", piano);
-    console.log("Cello: ", cello);
-    console.log("Violine: ", violine);
-    console.log("Objects loaded!");
-
+/**
+ * Getter for the violine object.
+ * @returns The violine object.
+ */
+export function getVioline() {
+    return violine;
 }
