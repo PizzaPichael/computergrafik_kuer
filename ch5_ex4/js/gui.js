@@ -31,7 +31,7 @@ var gui;
 export async function setupGui() {
     return new Promise((resolve, reject) => {
         try {
-        //----Gui controls----
+
         console.log("Setting up controls...");
         controls = new function () {
             this.playSound = function() { playSound(); }

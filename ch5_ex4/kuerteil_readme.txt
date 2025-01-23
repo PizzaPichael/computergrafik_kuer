@@ -1,6 +1,6 @@
 Todo:
 - add spotlights for each of the instruments when they are on stage
-- Umgebungsgeräusche die raus faden, wenn die Kordel gezogen wird
+- Ambient noise that fades out when the cord is pulled
 
 
 Fix:
