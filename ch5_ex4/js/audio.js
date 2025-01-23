@@ -1,3 +1,8 @@
+/**
+ * @fileoverview  This file contains the functions to set up and play audio in the scene.
+ */
+
+//----Global variables----
 var piano_listener;
 var audioLoader;
 var piano_sound;
@@ -6,14 +11,26 @@ var violin_sound;
 var cello_listener;
 var cello_sound;
 
+/**
+ * The function initializes the AudioLoader as well
+ * as the AudioListeners that are responsible for playing
+ * the sounds of the individual instruments.
+ * It then adds the audio files/stems to the corresponding listeners.
+ * 
+ * @param camera The camera to which the listeners are added.
+ */
 export function setupAudio(camera) {
-    //----Music----
-    // create an AudioListener and add it to the camera
+    audioLoader = new THREE.AudioLoader();
+
+    //Setting up the Listeners
     piano_listener = new THREE.AudioListener();
-    console.log("Camera position: ", camera.position);
     camera.add(piano_listener);
 
-    audioLoader = new THREE.AudioLoader();
+    violin_listener = new THREE.AudioListener();
+    camera.add(violin_listener);
+
+    cello_listener = new THREE.AudioListener();
+    camera.add(cello_listener);
 
     //Setting up the stems
     piano_sound = new THREE.Audio(piano_listener);
@@ -23,19 +40,12 @@ export function setupAudio(camera) {
         piano_sound.setVolume(1);
     });
 
-
-    violin_listener = new THREE.AudioListener();
-    camera.add(violin_listener);
-
     violin_sound = new THREE.Audio(violin_listener);
     audioLoader.load('./music/stems/17_Violin.mp3', function (buffer) {
         violin_sound.setBuffer(buffer);
         violin_sound.setLoop(false);
         violin_sound.setVolume(1);
     });
-
-    cello_listener = new THREE.AudioListener();
-    camera.add(cello_listener);
 
     cello_sound = new THREE.Audio(cello_listener);
     audioLoader.load('./music/stems/23_Cello.mp3', function (buffer) {
@@ -45,8 +55,11 @@ export function setupAudio(camera) {
     });
 }
 
+/**
+ * The function continous playing the sound of all three instruments 
+ * if they are suspendend or starts from the beginning if they were not yet played.
+ */
 export function playSound() {
-    console.log("Playing sound...");
     if (piano_sound.context.state === 'suspended') {
         piano_sound.context.resume().then(() => {
             piano_sound.play();
@@ -71,6 +84,9 @@ export function playSound() {
 
 }
 
+/**
+ * The function suspends the sound of all three instruments.
+ */
 export function suspendSound() {
     console.log("Suspending sound...");
     piano_sound.context.suspend();
@@ -78,6 +94,9 @@ export function suspendSound() {
     cello_sound.context.suspend();
 }
 
+/**
+ * The function stops the sound of all three instruments.
+ */
 export function stopSound() {
     console.log("Stopping sound...");
     piano_sound.stop();
@@ -85,34 +104,45 @@ export function stopSound() {
     cello_sound.stop();
 }
 
+/**
+ * The function mutes the piano sound.
+ */
 export function mutePiano() {
-    console.log("Muting piano...");
     piano_sound.setVolume(0);
 }
 
+/**
+ * The function unmutes the piano sound.
+ */
 export function unmutePiano() {
-    console.log("Unmuting piano...");
     piano_sound.setVolume(1);
 }
 
+/**
+ * The function mutes the violin sound.
+ */
 export function muteViolin() {
-    console.log("Muting violin...");
     violin_sound.setVolume(0);
 }
 
+/**
+ * The function unmutes the violin sound.
+ */
 export function unmuteViolin() {
-    console.log("Unmuting violin...");
     violin_sound.setVolume(1);
 }
 
+/**
+ * The function mutes the cello sound.
+ */
 export function muteCello() {
-    console.log("Muting cello...");
     cello_sound.setVolume(0);
 }
 
+/**
+ * The function unmutes the cello sound.
+ */
 export function unmuteCello() { 
-    console.log("Unmuting cello...");
     cello_sound.setVolume(1);
 }
 
-//TODO Umgebungsgeräusche die raus faden, wenn die Kordel gezogen wird

@@ -512,20 +512,20 @@ export function enableCameraMovement() {
 let controlExplanationAdded = false;
 /**
  * Function to explain the controls to the user.
- * The function is called by the {@link enableCameraMovement} function.
- * It can also be calles by the gui. See {@link setupGui} in the gui.js.
  * 
- * The fucntion is async, to allow the overlay text to be updated with a delay and not be removed
- * until the desired time ist run down.
+ * The function is async, to allow the overlay text to be updated with a delay and not be removed
+ * until the desired time is run down.
  * 
  * The function updates the overlay text with the {@link updateOverlayText} function.
+ * 
  * The function explains the controls for the mouse, the music and the instruments.
  * 
  * The function can explain all controls at once or only the controls for the mouse, the music or the instruments,
  * depending in the {@link controlType} parameter.
  * 
- * The function adds the controls to call itself to the gui once, if they have not been added yet.
- * When the have been added, the function sets the {@link controlExplanationAdded} variable to true.
+ * The function adds the tutorial controls to the gui once, using {@link addControlExplanation}, if they have not been added yet.
+ * This enables the function to be called again if the user needs to see parts of the tutorial again.
+ * When the buttons for the Tutorial have been added, the function sets the {@link controlExplanationAdded} variable to true.
  * 
  * @param controlType The type of controls to explain. Can be 'mouse', 'music', 'instruments' or 'all'.
  */

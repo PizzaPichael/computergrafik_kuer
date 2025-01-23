@@ -1,5 +1,5 @@
 /**
- * This file contains the render loop for the scene.
+ * @fileoverview This file contains the render loop for the scene.
  */
 
 import { 

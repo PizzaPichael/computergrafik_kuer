@@ -1,3 +1,7 @@
+/**
+ * @fileoverview This file contains the setup of the GUI.
+ */
+
 import { 
     playSound,
      suspendSound, 
@@ -13,10 +17,17 @@ import {
 import { 
     explainControls 
 } from './interactions.js';
-var controls;
 
+//----Define global variables----
+var controls;
 var gui;
 
+/**
+ * This function sets up the GUI.
+ * It adds all the nessecary buttons for palying the sound.
+ * It initializes the buttons for calling the tutorial.
+ * @returns A promise that resolves when the GUI is set up as to make sure the GUI is set up before the application starts.
+ */
 export async function setupGui() {
     return new Promise((resolve, reject) => {
         try {
@@ -26,9 +37,6 @@ export async function setupGui() {
             this.playSound = function() { playSound(); }
             this.suspendSound = function() { suspendSound(); }
             this.stopSound = function() { stopSound(); }
-            this.textField1 = 'Cello on stage';
-            this.textField2 = 'Piano on stage';
-            this.textField3 = 'Violine on stage';
             this.explainControls = function() { explainControls('all'); }
             this.explainMouse = function() { explainControls('mouse'); }
             this.explainMusic = function() { explainControls('music'); }
@@ -40,9 +48,6 @@ export async function setupGui() {
         gui.add(controls, 'playSound').name('Play Music');
         gui.add(controls, 'suspendSound').name('Pause Music');
         gui.add(controls, 'stopSound').name('Stop Music');
-        //gui.add(controls, 'textField1').name('Text Field 1').listen();
-        //gui.add(controls, 'textField2').name('Text Field 2').listen();
-        //gui.add(controls, 'textField3').name('Text Field 3').listen();
         resolve();
         } catch (error) {
             console.error("Error in setupGui:", error);
@@ -51,45 +56,63 @@ export async function setupGui() {
     });
 }
 
+//----Global variables to keep track of the mute/unmute-status----
 var previousCelloState = true;
 var previousPianoState = true;
 var previousViolinState = true;
 
-export function updateStatus(fieldId, booleanOnStage) {
-    if(fieldId === '1' && previousCelloState !== booleanOnStage) {
+/**
+ * This function updates the mute/unmute-status of the instruments using the 
+ * {@link mutePiano}, 
+ * {@link unmutePiano}, 
+ * {@link muteViolin},
+ * {@link unmuteViolin}, 
+ * {@link muteCello} and
+ * {@link unmuteCello} functions.
+ * 
+ * The function also updates the global variables for the previous states of the instrument,
+ * as to only update the status, when the previous status is different from the new status.
+ * 
+ * It was initially used to affect gui elements, thats why it is 
+ * located in the gui.js.
+ * Because of time issues, it was not moved to the interactions.js yet.
+ * 
+ * @param instrumentId The id of the instrument to be updated.
+ * @param booleanOnStage Boolean parameter indicating if the instrument is on stage or not.
+ */
+export function updateStatus(instrumentId, booleanOnStage) {
+    if(instrumentId === '1' && previousCelloState !== booleanOnStage) {
         if (!booleanOnStage) {
-            //controls.textField1 = 'Cello not on Stage';
             muteCello();
             previousCelloState = false;
         } else {
-            //controls.textField1 = 'Cello on Stage';
             unmuteCello();
             previousCelloState = true
         }
-    } else if(fieldId === '2' && previousPianoState !== booleanOnStage) {
+    } else if(instrumentId === '2' && previousPianoState !== booleanOnStage) {
         if (!booleanOnStage) {
-            //controls.textField2 = 'Piano not on Stage';
             mutePiano();
             previousPianoState = false;
         } else {
-            //controls.textField2 = 'Piano on Stage';
             unmutePiano();
             previousPianoState = true;
         }
 
-    } else if(fieldId === '3' && previousViolinState !== booleanOnStage) {
+    } else if(instrumentId === '3' && previousViolinState !== booleanOnStage) {
         if (!booleanOnStage) {
-            //controls.textField3 = 'Violine not on Stage';
             muteViolin();
             previousViolinState = false;
         } else {
-            //controls.textField3 = 'Violine on Stage';
             unmuteViolin();
             previousViolinState = true;
         }
     }
 }
 
+/**
+ * This function adds the tutorial buttons to the GUI.
+ * The buttons call either the full tutorial or the tutorial for the mouse, music or instruments.
+ */
 export function addControlExplanation() {
     gui.add(controls, 'explainControls').name('Full tutorial');
     gui.add(controls, 'explainMouse').name('Mouse tutorial');
