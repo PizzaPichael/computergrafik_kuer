@@ -3,11 +3,8 @@
  */
 
 import { 
-    enableCameraMovement, 
     getTrackBallControls, 
     updateTrackBallControls, 
-    getRaycaster, 
-    getMouse,
     moveCurtainsFunction,
     moveCameraForward,
     checkInstrumentsPosition,

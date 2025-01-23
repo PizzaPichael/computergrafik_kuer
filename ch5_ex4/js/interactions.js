@@ -62,14 +62,6 @@ let instrumentDragPlane;
 let spotLight;
 let initCordYPos;
 
-export function getRaycaster() {
-    return raycaster;
-}
-
-export function getMouse() {
-    return mouse;
-}
-
 /**
  * Sets up the interactions for the scene.
  * 
