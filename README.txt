@@ -26,7 +26,7 @@ Other folders and files are:
 - index, starts the project when opened with LiveServer
 
 I only tried to rename the ch5_ex4 folder at the end of the project and got an error that I was to afraid to fix, 
-as I didn't want it to cause more problems and make the projectnot work anymore.
+as I didn't want it to cause more problems and make the project not work anymore.
 The FromThreeBook folder and files are the ones used in the last exercise.
 
 
@@ -38,11 +38,11 @@ If the spectator pulls the rope far enough, the curtains start opening and a spo
 The curtain reveals a white canvas on which a spinning portal becomes visible.
 
 The camera starts to move towards the portal and eventually passes through it.
-Suddenly, the spectator fidn itself in space, looking at a floating stage with three instruments on it.
+Suddenly, the spectator find itself in space, looking at a floating stage with three instruments on it.
 A text displays how to navigate around, how to use the GUI Buttons in the upper right corner, and how to interact with the instruments.
 
 Via the Buttons, music can be started, suspended or stopped.
-After the tutorial has been showen once, buttons are added to the gui to bring back the tutorial for certain parts of the scene, if needed.
+After the tutorial has been shown once, buttons are added to the gui to bring back the tutorial for certain parts of the scene, if needed.
 
 
 
@@ -54,21 +54,21 @@ For reference, see the screenshots of the CopilotConversation in the under the p
 
 By nature, the copilot output is very extensive and involves a lot of code suggestions.
 In my experience it is not possible yet to let copilot write code that fits into the context of the codebase.
-Thats why, in the end, if suggestions copilot made were fitting to what was needed to achieve, only the general idea was used, not the whole code it created.
+That's why, in the end, if suggestions copilot made were fitting to what was needed to achieve, only the general idea was used, not the whole code it created.
 The code then was adjusted to fit into the context and work with the rest of the code.
-So copilot served more as a replacement of StackOverflow or other Websites that provide ideas and codesnippets.
+So copilot served more as a replacement of StackOverflow or other Websites that provide ideas and code-snippets.
 That is also the reason, why none of these websites are credited here, because they have not really been used for this project.
 
 The only occasions where websites like these were used, were bugfixes for errors, that copilot could not help dealing with. 
-Non of these involved copying codesnippets from the web though, but rather changing general concepts within the code structure.
+Non of these involved copying code-snippets from the web though, but rather changing general concepts within the code structure.
 
 Further general suggested concepts by copilot:
 - HTMLOverlayText for the tutorial, see .\CopilotScreenshots\HTMLTextOverlay
 - Detection of instruments on stage, see .\CopilotScreenshots\InstrumentOnStageDetectionExample
 - Object removal from stage, see .\CopilotScreenshots\ObjectRemovalExample
-- Using promises for async object laoding, see .\CopilotScreenshots\PromiseExample
+- Using promises for async object loading, see .\CopilotScreenshots\PromiseExample
 
-I have also added an example for reassurence work i did with copilot, where I f.e. ask it about coding concepts, see .\CopilotScreenshots\ReassuranceExample
+I have also added an example for reassurance work i did with copilot, where I f.e. ask it about coding concepts, see .\CopilotScreenshots\ReassuranceExample
 
 Unfortunately, I couldn't recall all the CopilotChats I had.
 Further instances where copilot suggestions were used are:
@@ -95,10 +95,10 @@ Music: DomesticResearchPartners_OldEmptyNest from https://www.cambridge-mt.com/m
 - Portal: https://e7.pngegg.com/pngimages/601/839/png-clipart-blue-and-purple-vortex-illustration-portal-magic-animation-portal-purple-blue-thumbnail.png last accessed 26.01.2025
 - Milky way background/starmap_16k: https://svs.gsfc.nasa.gov/4851/ last accessed 26.01.2025
 - Stage texture wood_cabinet: https://polyhaven.com/a/wood_cabinet_worn_long last accessed 26.01.2025
-- Curtain rop teexture(not really the texture is used here, jsut the colour): https://polyhaven.com/a/wood_floor last accesed 26.01.2025
+- Curtain rope texture(not really the texture is used here, jsut the colour): https://polyhaven.com/a/wood_floor last accessed 26.01.2025
 
 
-Todo:
+TODO:
 - add spotlights for each of the instruments when they are on stage
 - Ambient noise that fades out when the cord is pulled
 
