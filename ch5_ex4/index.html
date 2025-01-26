@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!--- Aufgabe b) --->
     <script type="text/javascript" charset="UTF-8" src="../FromThreeBook/libs/three/three.js"></script>
     <script type="text/javascript" charset="UTF-8" src="../FromThreeBook/libs/three/controls/TrackballControls.js"></script>
     <script type="text/javascript" src="../FromThreeBook/libs/util/Stats.js"></script>
@@ -21,11 +20,22 @@
             height: 100vh;
             display: block;
         }
+        /*General overlay-object structure provided by Copilot*/
+        #overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 40px;
+            z-index: 100;
+        }
     </style>
-    <title>WebXR Ch. 5 Ex. 4</title>
+    <title>Stellar symphony</title>
 </head>
 <body>
     <canvas id="c"></canvas>
+    <div id="overlay"></div>
 </body>
-<script type="module" src="./index_ex4_final.js"></script>
+<script type="module" src="./js/app.js"></script>
 </html>
