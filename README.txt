@@ -17,7 +17,7 @@ In the main branch, download the "textures" and "objects" folders and copy them 
 
 The important files for the project are inside the ch5_ex4 folder.
 All the JavaScript files are inside the "js" folder.
-Other folder and files are:
+Other folders and files are:
 - CopilotScreenshots
 - modules, threejs modules folder
 - music, hold the music stems for the instruments
@@ -72,7 +72,7 @@ I have also added an example for reassurence work i did with copilot, where I f.
 
 Unfortunately, I couldn't recall all the CopilotChats I had.
 Further instances where copilot suggestions were used are:
-- adding the three instruments as combined meshes to the scene as to make sure, that no matter where the isntrument is clicked on, it is selected
+- adding the three instruments as combined meshes to the scene as to make sure, that no matter where the instrument is clicked on, it is selected
 - setup and use a raycaster
 - setting up an audioloader and audiolistener
 
