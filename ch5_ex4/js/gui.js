@@ -68,7 +68,7 @@ var previousViolinState = true;
  * {@link muteViolin},
  * {@link unmuteViolin}, 
  * {@link muteCello} and
- * {@link unmuteCello} functions.
+ * {@link unmuteCello} functions from the audio.js file.
  * 
  * The function also updates the global variables for the previous states of the instrument,
  * as to only update the status, when the previous status is different from the new status.

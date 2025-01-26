@@ -52,7 +52,7 @@ async function main() {
 
     //----Create scene----
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0.3, 0.5, 0.8);   //0.3, 0.5, 0.8         0x000000
+    scene.background = new THREE.Color(0.3, 0.5, 0.8);
     const tripod = new THREE.AxesHelper(50);
     tripod.name = "tripod";
     tripod.visible = false;
@@ -63,7 +63,6 @@ async function main() {
     await loadLights(scene);
     await setupInteractions(scene, camera, gl);
     setupAudio(camera);
-    //await setupGui();
 
     //----Start render loop----
     renderLoop(scene, camera, gl);

@@ -12,7 +12,7 @@ var cello_listener;
 var cello_sound;
 
 /**
- * The function initializes the AudioLoader as well
+ * The function initializes the AudioLoader, as well
  * as the AudioListeners that are responsible for playing
  * the sounds of the individual instruments.
  * It then adds the audio files/stems to the corresponding listeners.

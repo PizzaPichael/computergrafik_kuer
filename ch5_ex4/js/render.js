@@ -82,7 +82,6 @@ export function renderLoop(scene, camera, gl) {
             camera.updateProjectionMatrix();
         }
 
-        
         rotatePortal();
         moveCurtainsFunction();
         moveCameraForward();

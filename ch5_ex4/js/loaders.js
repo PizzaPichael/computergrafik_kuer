@@ -2,8 +2,8 @@
  *  @fileoverview This file contains all the functions to load the objects for the scene.
  * 
  * The function for loading the objects is mainly the same as in the exercise.
- * The addition of promises to it to enable asynchronous creation has been proposed by ChatGPT.
- * It also gave an exmaple of how to add the promis efunctionality.
+ * The addition of promises to it to enable asynchronous creation has been proposed by Copilot.
+ * It also gave an exmaple of how to add the promise functionality.
  * This example has been edited to cater to the needs of the program.
  * 
  * The functions for basic geometries and planes have also been adopted from the exercise.
