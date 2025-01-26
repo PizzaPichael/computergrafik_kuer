@@ -8,6 +8,29 @@ This project is under authorship of Michael Kaup, s0589545
 
 
 
+##Disclaimer1:
+I couldn't upload the textures and objects, as they were increasing the size of the project so much, that it went above the 100MB maximum.
+I only noticed this at the end, so I decided to remove them from the moodle upload.
+
+If the missing files are needed, please refer to the following github repo: https://github.com/PizzaPichael/computergrafik_kuer.git
+In the main branch, download the "textures" and "objects" folders and copy them into the ch5_ex4 folder.
+
+The important files for the project are inside the ch5_ex4 folder.
+All the JavaScript files are inside the "js" folder.
+Other folder and files are:
+- CopilotScreenshots
+- modules, threejs modules folder
+- music, hold the music stems for the instruments
+- objects, holds all the needed objects
+- textures, holds all the textures for the objects
+- index, starts the project when opened with LiveServer
+
+I only tried to rename the ch5_ex4 folder at the end of the project and got an error that I was to afraid to fix, 
+as I didn't want it to cause more problems and make the projectnot work anymore.
+The FromThreeBook folder and files are the ones used in the last exercise.
+
+
+
 ##Scene description:
 The scene represents a theaterroom in which the spectator sits, looking at closed theatre curtains.
 Inside the room, a curtain rope hangs from the ceiling with which the spectator can interact by pulling it down.
@@ -23,7 +46,7 @@ After the tutorial has been showen once, buttons are added to the gui to bring b
 
 
 
-##Disclaimer1:
+##Disclaimer2:
 The process of writing the code involved the usage of the CopilotExtension in VS-Code.
 It was used to debug errors and change minor problems in the code but also suggest solutions for ideas that needed to be implemented.
 F.e. the approach of dragging the curtain rope, using the three events mousedown, mousemove and mouseup.
@@ -52,12 +75,6 @@ Further instances where copilot suggestions were used are:
 - adding the three instruments as combined meshes to the scene as to make sure, that no matter where the isntrument is clicked on, it is selected
 - setup and use a raycaster
 - setting up an audioloader and audiolistener
-
-##Disclaimer2:
-The important files for the project are inside the ch5_ex4 folder.
-I only tried to rename it at the end of the project and got an error that I was to afraid to fix, as I didn't want it to cause more problems and make the project
-not work anymore.
-The FromThreeBook folder and files are the ones used in the last exercise.
 
 ##Model Sources:
 Piano: https://www.cgtrader.com/free-3d-models/furniture/other/realistic-custom-grand-piano last accessed 24.01.2025
