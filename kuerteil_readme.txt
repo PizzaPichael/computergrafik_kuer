@@ -54,7 +54,10 @@ Further instances where copilot suggestions were used are:
 - setting up an audioloader and audiolistener
 
 ##Disclaimer2:
-
+The important files for the project are inside the ch5_ex4 folder.
+I only tried to rename it at the end of the project and got an error that I was to afraid to fix, as I didn't want it to cause more problems and make the project
+not work anymore.
+The FromThreeBook folder and files are the ones used in the last exercise.
 
 ##Model Sources:
 Piano: https://www.cgtrader.com/free-3d-models/furniture/other/realistic-custom-grand-piano last accessed 24.01.2025
